@@ -62,4 +62,18 @@ public interface GameParameters {
 	
 	public static final String[] LETTERS = {LETTER_BLANK, LETTER_A, LETTER_B, LETTER_C, LETTER_D, LETTER_E, LETTER_F, LETTER_G, LETTER_H, LETTER_I, LETTER_J, LETTER_K, LETTER_L,
 			LETTER_M ,LETTER_N, LETTER_O, LETTER_P, LETTER_Q, LETTER_R, LETTER_S, LETTER_T, LETTER_U, LETTER_V, LETTER_W, LETTER_X, LETTER_Y, LETTER_Z};
+	
+	// Lexicon
+	public static final String LEXICON = "assets/scrabble/lexicon/Collins Scrabble Words (2019).txt";
+	
+	// UI
+	public static final String DBOX = "assets/scrabble/ui/dialogue_box.png";
+	public static final String DBOX_YES = "assets/scrabble/ui/grey_boxCheckmark.png";
+	public static final String DBOX_NO = "assets/scrabble/ui/grey_boxCross.png";
+	
+	public static final float DBOX_WIDTH = 400;
+	public static final float DBOX_HEIGHT = 200;
+	
+	public static final float DBOX_START_X = 400;
+	public static final float DBOX_START_Y= 360;
 }

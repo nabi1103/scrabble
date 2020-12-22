@@ -33,7 +33,6 @@ public class Letter extends Entity implements GameParameters{
 		this.pos = pos;
 		this.id = entityID;
 		
-		this.setScore();
 		this.setPosition(pos);
 		this.addImageComponent();
 		this.setScale(LETTER_SCALE_FACTOR);
@@ -48,6 +47,7 @@ public class Letter extends Entity implements GameParameters{
 		return value;
 	}
 	
+	/*
 	
 	public void setScore() {
 		Set<Character> blank = Set.of('_');
@@ -105,6 +105,7 @@ public class Letter extends Entity implements GameParameters{
 			return;
 		}
 	}
+	*/
 	
 	public ImageRenderComponent addImageComponent() {
 		ImageRenderComponent image = null;
@@ -123,7 +124,7 @@ public class Letter extends Entity implements GameParameters{
 				return image;
 			}
 		}
-		return null;
+		return image;
 	}
 
 

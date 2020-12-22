@@ -1,7 +1,5 @@
 package de.tud.jsf.scrabble.ui.entity;
 
-import java.util.ArrayList;
-
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
@@ -22,10 +20,10 @@ import eea.engine.event.basicevents.MouseEnteredEvent;
 public class Tile extends Entity implements GameParameters {
 	
 	String id;
-	int mult;
+	int letter_multiplier;
+	int word_multiplier;
 	Vector2f pos;
 	String type; // 'blank', 'dword', 'dletter', 'tword', 'tletter'
-	ArrayList<String> neighbors = new ArrayList<>(); 
 
 	public Tile(String entityID, String type, Vector2f pos) {
 		super(entityID);
@@ -38,24 +36,26 @@ public class Tile extends Entity implements GameParameters {
 		this.type = type;
 		this.pos = pos;
 		
-		this.setMultiplier();
+		this.setLetterMultiplier();
 		this.setVisible(true);
+		
 		this.setPosition(pos);
 		this.setScale(TILE_SCALE_FACTOR);
-		this.setNeighbors();
+		
+		this.setLetterMultiplier();
+		this.setWordMultiplier();
 		
 		this.addImageComponent();
 		
-		//Test
-		//this.addTestEvent();
+//		this.addTestEvent();
 	}
 	
-	public String getTileID() {
-		return id;
+	public int getLetterMultiplier() {
+		return letter_multiplier;
 	}
 	
-	public int getMultiplier() {
-		return mult;
+	public int getWordMultiplier() {
+		return word_multiplier;
 	}
 	
 	public Vector2f getPosition() {
@@ -66,67 +66,38 @@ public class Tile extends Entity implements GameParameters {
 		return type;
 	}
 		
-	public ArrayList<String> getNeighbors() {
-		return neighbors;
-	}
 	
-	public void setNeighbors() {
-		int x = Integer.parseInt(id.split("_")[0]);
-		int y = Integer.parseInt(id.split("_")[1]);
-		
-		int x_left = x - 1;
-		int x_right = x + 1;
-		int y_up = y - 1;
-		int y_down = y + 1;
-		
-		ArrayList<Integer> coorX = new ArrayList<>();
-		ArrayList<Integer> coorY = new ArrayList<>();
-		
-		if (x_left >= 0) coorX.add(x_left);
-		if (x_right < BOARDSIZE) coorX.add(x_right);
-		
-		if (y_up >= 0) coorY.add(y_up);
-		if (y_down < BOARDSIZE) coorY.add(y_down);
-		
-		for (int i = 0; i < coorX.size(); i++) {
-			neighbors.add(coorX.get(i).toString() + "_" + Integer.toString(y));
-	     } 
-		
-		for (int i = 0; i < coorY.size(); i++) {
-			neighbors.add(Integer.toString(x) + "_" + coorY.get(i).toString());
-	     }
-	}
-	
-	public void setMultiplier() {
-		switch (this.getType()) {
-		case "blank":
-			this.mult = 1;
-			break;
-		case "dword":
-			this.mult = 2;
-			break;
-		case "dletter":
-			this.mult = 2;
-			break;
-		case "tword":
-			this.mult = 3;
-			break;
-		case "tletter":
-			this.mult = 3;
-			break;
+	public void setLetterMultiplier() {
+		if (this.getType().equals("blank") || this.getType().equals("dword") || this.getType().equals("tword")) {
+			this.letter_multiplier = 1;
+		}
+		else if (this.getType().equals("dletter")) {
+			this.letter_multiplier = 2;
+		}
+		else if (this.getType().equals("tletter")) {
+			this.letter_multiplier = 3;
 		}
 	}
 	
+	public void setWordMultiplier() {
+		if (this.getType().equals("blank") || this.getType().equals("dletter") || this.getType().equals("tletter")) {
+			this.word_multiplier = 1;
+		}
+		else if (this.getType().equals("dword")) {
+			this.word_multiplier = 2;
+		}
+		else if (this.getType().equals("tword")) {
+			this.word_multiplier = 3;
+		}
+	}
+	
+	// Testing only
 	public Event addTestEvent() {
     	ANDEvent click = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
 		click.addAction(new Action() {
 			@Override
 			public void update(GameContainer gc, StateBasedGame sbg, int arg, Component c) {
-				System.out.println(getTileID());
-				for (String s : neighbors) {
-					System.out.print(s + " ");
-				}
-				System.out.println("________________");
+				System.out.println(getPosition());
 			}
 		});
 		this.addComponent(click);
