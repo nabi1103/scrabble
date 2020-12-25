@@ -71,6 +71,9 @@ public interface GameParameters {
 	public static final String DBOX_YES = "assets/scrabble/ui/grey_boxCheckmark.png";
 	public static final String DBOX_NO = "assets/scrabble/ui/grey_boxCross.png";
 	
+	public static final String COMMIT_BUTTON = "assets/scrabble/ui/commit_button.png";
+	public static final String UNDO_BUTTON = "assets/scrabble/ui/undo_button.png";
+	
 	public static final float DBOX_WIDTH = 400;
 	public static final float DBOX_HEIGHT = 200;
 	

@@ -62,7 +62,31 @@ public class DialogueButton extends Entity implements GameParameters{
 				e.printStackTrace();
 			}
 			break;
+		
+		case "commit":
+			try {
+				image = new ImageRenderComponent(new Image(COMMIT_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + COMMIT_BUTTON);
+				e.printStackTrace();
+			}
+			break;
+			
+		case "undo":
+			try {
+				image = new ImageRenderComponent(new Image(UNDO_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + UNDO_BUTTON);
+				e.printStackTrace();
+			}
+			break;
+			
 		}
+		
+		
+		
 		return image; 
 	}
 }

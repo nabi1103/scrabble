@@ -91,6 +91,11 @@ public class Tile extends Entity implements GameParameters {
 		}
 	}
 	
+	public void clearMultiplier() {
+		this.word_multiplier = 1;
+		this.letter_multiplier = 1;
+	}
+	
 	// Testing only
 	public Event addTestEvent() {
     	ANDEvent click = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
