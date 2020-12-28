@@ -20,6 +20,9 @@ public class Lexicon implements GameParameters{
 	}
 	
 	public boolean check(String word) {
+		if (word.contains("_")) {
+			
+		}
 		return lex.contains(word);
 	}
 	

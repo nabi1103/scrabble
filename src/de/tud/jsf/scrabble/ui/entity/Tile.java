@@ -23,12 +23,12 @@ public class Tile extends Entity implements GameParameters {
 	int letter_multiplier;
 	int word_multiplier;
 	Vector2f pos;
-	String type; // 'blank', 'dword', 'dletter', 'tword', 'tletter'
+	String type; // 'blank', 'dword', 'dletter', 'tword', 'tletter', 'star'
 
 	public Tile(String entityID, String type, Vector2f pos) {
 		super(entityID);
 		
-		if ( !(type.equals("blank") || type.equals("dword") || type.equals("dletter") || type.equals("tword") || type.equals("tletter")) ) {
+		if ( !(type.equals("blank") || type.equals("dword") || type.equals("dletter") || type.equals("tword") || type.equals("tletter") || type.equals("star")) ) {
 			throw new IllegalArgumentException("Type can only be 'blank', 'dword', 'dletter', 'tword' or 'tletter'");
 		}
 		
@@ -68,7 +68,7 @@ public class Tile extends Entity implements GameParameters {
 		
 	
 	public void setLetterMultiplier() {
-		if (this.getType().equals("blank") || this.getType().equals("dword") || this.getType().equals("tword")) {
+		if (this.getType().equals("blank") || this.getType().equals("dword") || this.getType().equals("tword") || this.getType().equals("star")) {
 			this.letter_multiplier = 1;
 		}
 		else if (this.getType().equals("dletter")) {
@@ -83,7 +83,7 @@ public class Tile extends Entity implements GameParameters {
 		if (this.getType().equals("blank") || this.getType().equals("dletter") || this.getType().equals("tletter")) {
 			this.word_multiplier = 1;
 		}
-		else if (this.getType().equals("dword")) {
+		else if (this.getType().equals("dword") || this.getType().equals("star")) {
 			this.word_multiplier = 2;
 		}
 		else if (this.getType().equals("tword")) {
@@ -161,7 +161,17 @@ public class Tile extends Entity implements GameParameters {
 				e.printStackTrace();
 			}
 			break;
-
+		
+		case "star":
+			try {
+				image = new ImageRenderComponent(new Image(STAR_TILE));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + STAR_TILE);
+				e.printStackTrace();
+			}
+			break;	
+			
 		}
 		return image;
 	}

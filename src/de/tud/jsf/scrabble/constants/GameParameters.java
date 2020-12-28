@@ -9,7 +9,7 @@ public interface GameParameters {
 	// Game States
 	public static final int MAINMENU_STATE = 0;
 	public static final int GAMEPLAY_STATE = 1;
-	public static final int HIGHSCORE_STATE = 2;
+	public static final int CE_STATE = 2;
 	public static final int ABOUT_STATE = 3;
 	
 	// Board
@@ -27,6 +27,7 @@ public interface GameParameters {
 	public static final String RED_TILE = "assets/scrabble/tile/tile_red.png";
 	public static final String CYAN_TILE = "assets/scrabble/tile/tile_cyan.png";
 	public static final String PINK_TILE = "assets/scrabble/tile/tile_pink.png";
+	public static final String STAR_TILE = "assets/scrabble/tile/tile_star.png";
 	
 
 	// Letter
