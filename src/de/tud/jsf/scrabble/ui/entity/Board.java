@@ -51,18 +51,9 @@ public class Board implements GameParameters{
 					if (tileType == null) tileType = "blank";
 				}
 				Vector2f temp = new Vector2f(pos.getY() + j * TILE_WIDTH, pos.getX() + i * TILE_HEIGHT);
-				//Vector2f temp = new Vector2f(pos.getY() + j * TILE_HEIGHT, pos.getX() + i * TILE_WIDTH);
 				board[i][j] = new Tile(tileID, tileType, temp);
 			}
 		}
-		/*for (int i = 0 ; i < BOARDSIZE ;  i++) {
-			for (int j = 0 ; j < BOARDSIZE ; j ++) {
-				System.out.print(board[i][j].getID());
-				System.out.print(" ");
-				
-			}
-			System.out.println();
-		}*/
 		return board;	
 	
 	}

@@ -2,8 +2,10 @@ package de.tud.jsf.scrabble.ui.states;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Random;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -31,7 +33,7 @@ import de.tud.jsf.scrabble.ui.entity.Lexicon;
 import de.tud.jsf.scrabble.ui.entity.DialogueBox;
 import de.tud.jsf.scrabble.ui.entity.DialogueButton;
 import de.tud.jsf.scrabble.ui.entity.Word;
-
+import de.tud.jsf.scrabble.model.player.*;
 public class GameplayState extends BasicGameState implements GameParameters{
 	
 	private int stateID; 				
@@ -43,6 +45,10 @@ public class GameplayState extends BasicGameState implements GameParameters{
 	private Tile[][] tiles = b.buildBoard();
 	private Lexicon lexicon = new Lexicon();
 	private static ArrayList<Word> current_words = new ArrayList<>();
+	
+	private Player[] players;
+	private int numberOfPlayers = 2;
+	private Player currentPlayer;
 	
 	// Functional variables
 	private boolean move_letter = false;
@@ -70,6 +76,12 @@ public class GameplayState extends BasicGameState implements GameParameters{
 	private int turn_begin_score = 0;
 	private char[][] turn_begin_char_grid = new char[BOARDSIZE][BOARDSIZE];
 	
+	//
+	private int numberOfColumns = 0;
+	private int numberOfRows = 0;
+	private int lineX = -1;
+	private int lineY = -1;
+	
 	GameplayState(int sid ) {
         this.stateID = sid;
         entityManager = StateBasedEntityManager.getInstance();
@@ -79,6 +91,16 @@ public class GameplayState extends BasicGameState implements GameParameters{
      
 	@Override
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
+		// Init player
+		players = new Player[numberOfPlayers];
+		for (int i = 0 ; i < numberOfPlayers ; i ++) {
+			players[i] = new Player("" + i + 1);
+		}
+		// Randomize first player to go
+		currentPlayer = players[new Random().nextInt(numberOfPlayers-1) + 1];
+		
+		System.out.println("INIT");
+		
 		// Create new BACKGROUND entity & add to manager
 		Entity background = new Entity("background");
 		background.setPosition(new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
@@ -117,18 +139,28 @@ public class GameplayState extends BasicGameState implements GameParameters{
 		}
 		
 		// Interactive buttons
-		// Commit button
+		// Commit button (PLAY)
+		
 		Vector2f commit_pos = new Vector2f(750, 120);
 		DialogueButton commit = new DialogueButton("commit_button", commit_pos, "commit");
 		commit.addImageComponent();
 		entityManager.addEntity(stateID, commit);
 		triggerCommitDialogueBox(commit);
-		// Undo button
+		// Undo button (RECALL)
 		Vector2f undo_pos = new Vector2f(860, 120);
 		DialogueButton undo = new DialogueButton("undo_button", undo_pos, "undo");
 		undo.addImageComponent();
 		entityManager.addEntity(stateID, undo);
 		triggerUndoDialogueBox(undo);
+		// Play button
+		/*
+		Vector2f play_pos = new Vector2f(750,120);
+		DialogueButton play = new DialogueButton("play_button", play_pos, "commit");
+		play.addImageComponent();
+		entityManager.addEntity(stateID, play);*/
+		// TODO: Challenge Button
+		// TODO: Exchange Button
+		// TODO: Show letters Button
 		
 		
 		// Always the last thing to do
@@ -139,6 +171,99 @@ public class GameplayState extends BasicGameState implements GameParameters{
 			turn_begin_state.add(e);
 		}
 		
+	}
+	// PLAY BUTTON
+	public void triggerPlay(DialogueButton button) {
+	ArrayList<Entity> tmp_rmv = new ArrayList<>();
+	ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+	Action clickOnButton = new Action() {
+		@Override
+		public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+			DialogueBox box = button.getDialogueBox();
+			
+			// Update UI elements accordingly
+			if (turn == 0 && getEntityByPos(new Vector2f(380,380)).size() < 2) {
+				
+				entityManager.clearEntitiesFromState(stateID);
+				
+				most_recent_horizontal_word = "";
+				most_recent_horizontal_score = 0;
+				
+				most_recent_vertical_word = "";
+				most_recent_vertical_score = 0;
+				
+				current_words.clear();
+				
+				entityManager.removeEntity(stateID, box.getButtons()[1]);
+				entityManager.removeEntity(stateID, box);
+				entityManager.removeEntity(stateID, button);
+				
+				for(Entity e : turn_begin_state) {
+					entityManager.addEntity(stateID, e);
+				} 
+
+				for(int i = 0; i < 15; i++) {
+					for(int j = 0; j < 15; j++) {
+						char_grid[i][j] = turn_begin_char_grid[i][j];
+					}
+				}
+				
+				warning_button_generic_text = "The first turn must use the centermost tile!";
+				commit_button_generic_text = "";
+				clickable = true;
+				
+				return;
+			}
+			
+			lineX = -1;
+			lineY = -1;
+			
+			turn = turn + 1;
+			warning_button_generic_text = "";
+			
+			total_score = total_score + current_words.stream().mapToInt((w) -> w.getScore()).sum();
+			turn_begin_score = total_score;
+			
+			most_recent_horizontal_word = "";
+			most_recent_horizontal_score = 0;
+			
+			most_recent_vertical_word = "";
+			most_recent_vertical_score = 0;
+			
+			current_words.forEach((w)-> {w.getTiles().forEach((t) -> {t.clearMultiplier();});});
+			current_words.clear();
+		
+			// Remove dialogue box
+			entityManager.removeEntity(stateID, box.getButtons()[1]);
+			entityManager.removeEntity(stateID, box);
+			entityManager.removeEntity(stateID, button);
+			
+			// Restore overlapping entities
+			for (Entity e : tmp_rmv) {
+				entityManager.addEntity(stateID, e);
+			}
+			
+			turn_begin_state.clear();
+			
+			for (Entity e :entityManager.getEntitiesByState(stateID) ) {
+				turn_begin_state.add(e);
+			}
+			
+			for(int i = 0; i < 15; i++) {
+				for(int j = 0; j < 15; j++) {
+					turn_begin_char_grid[i][j] = char_grid[i][j];
+				}
+			}
+			
+			commit_button_generic_text = "";
+			clickable = true;
+			
+		
+		}
+	};
+	clickEvent.addAction(clickOnButton);
+	button.addComponent(clickEvent);
+	
 	}
 	
 	// "Commit" dialogue box event functions
@@ -257,6 +382,9 @@ public class GameplayState extends BasicGameState implements GameParameters{
 					return;
 				}
 				
+				lineX = -1;
+				lineY = -1;
+				
 				turn = turn + 1;
 				warning_button_generic_text = "";
 				
@@ -296,6 +424,7 @@ public class GameplayState extends BasicGameState implements GameParameters{
 				
 				commit_button_generic_text = "";
 				clickable = true;
+				
 			}
 		};
 		
@@ -433,6 +562,7 @@ public class GameplayState extends BasicGameState implements GameParameters{
 				int x = Integer.parseInt(t.getID().split("_")[0]);
 				int y = Integer.parseInt(t.getID().split("_")[1]);
 				
+				
 				if(turn > 0) {
 					char left = '\u0000';
 					char right = '\u0000';
@@ -454,10 +584,32 @@ public class GameplayState extends BasicGameState implements GameParameters{
 						down = char_grid[x + 1][y];
 					}
 				
-					if (up == '\u0000' && down == '\u0000' && left == '\u0000' && right == '\u0000') return;
-				}
+					if (up == '\u0000' && down == '\u0000' && left == '\u0000' && right == '\u0000') {
+						move_letter = false;
+						return;
+					}					
 					
+				}
+				if (lineX == -1) {
+					numberOfRows = 1;
+					lineX = x;
+				}
+				if (lineY == -1) {
+					numberOfColumns = 1;
+					lineY = y;
+				}
+				int tempX = numberOfRows;
+				int tempY = numberOfColumns;
+				if (x != lineX) numberOfRows ++;
+				if (y != lineY) numberOfColumns ++;
 				
+				if (numberOfRows > 1 && numberOfColumns > 1) {
+					numberOfRows = tempX;
+					numberOfColumns = tempY;
+					move_letter = false;
+					return;
+				}
+												
 				Letter new_letter = new Letter(tmp_letter.getID(), tmp_letter.getValue(), t.getPosition());
 				
 				char_grid[x][y] = new_letter.getValue();
@@ -468,6 +620,8 @@ public class GameplayState extends BasicGameState implements GameParameters{
 				move_letter = false;
 				tmp_letter = null;
 				
+				// TEST
+			
 				System.out.println("current grid:");
 
 				for(int i1 = 0; i1 < 15; i1++) {
@@ -477,7 +631,11 @@ public class GameplayState extends BasicGameState implements GameParameters{
 					System.out.println(" ");
 				}
 				
+				// TEST 
+				
 				Word[] curr_words = getWord(x,y);
+				//System.out.println(curr_words[0].getValue());
+				//System.out.println(curr_words[1].getValue());
 				
 				most_recent_horizontal_word = curr_words[0].getValue();
 				most_recent_horizontal_score = curr_words[0].getScore();
@@ -509,10 +667,18 @@ public class GameplayState extends BasicGameState implements GameParameters{
 		return result;
 	}
 	
-	public boolean[] isNewWord(Word current_word, Word new_word) {
+	public boolean isNewWord(Word current_word, Word new_word) {
 		ArrayList<Tile> current_tiles = current_word.getTiles();
 		ArrayList<Tile> new_tiles = new_word.getTiles();
 		
+		
+		boolean result = true;
+		
+		for (Tile t : current_tiles) {
+			result = result && new_tiles.contains(t);
+		}
+		
+		/*
 		boolean[] result = {false, false};
 		boolean extend = true;
 	
@@ -524,9 +690,26 @@ public class GameplayState extends BasicGameState implements GameParameters{
 		}
 		result[1] = extend;
 		return result;
+		
+		 */
+		return result;
 	}
 	
 	public void addToCurrentWord(Word new_word) {
+		if(current_words.isEmpty()) {
+			current_words.add(new_word);
+			return;
+		}
+		for (Iterator<Word> it = current_words.iterator(); it.hasNext();) {
+			Word w = it.next();
+			if (isNewWord(w, new_word)) {
+				it.remove();
+			}
+		}
+		if (new_word.getValue().length() > 1) current_words.add(new_word);
+		new_word.getTiles().forEach((t) -> {t.clearMultiplier();});
+		
+		/*
 		boolean completely_new = true;
 		boolean extension = false;
 		
@@ -540,10 +723,16 @@ public class GameplayState extends BasicGameState implements GameParameters{
 				 break;
 			 }
 		}
-		if(completely_new && !extension && lexicon.check(new_word.getValue())) {
+		if(completely_new && !extension ) { // && lexicon.check(new_word.getValue())) {
 			current_words.add(new_word);
+			
 //			new_word.getTiles().forEach((t) -> {t.clearMultiplier();});
 		}
+		else {
+			System.out.println(new_word.getValue() + " is not added");
+		}
+		*/
+		current_words.forEach((w) -> {System.out.println(w.getValue());});
 	}
 		
 	public Word[] getWord(int i, int j) {
@@ -590,9 +779,9 @@ public class GameplayState extends BasicGameState implements GameParameters{
 		
 		word = left + curr_char + right;
 		
-		if (lexicon.check(word)) {
+		//if (lexicon.check(word)) {
 			word_score = score * word_multiplier;
-		} 
+		//} 
 		
 		word_tiles_h.sort(new Comparator<Tile>() {
 
@@ -640,9 +829,9 @@ public class GameplayState extends BasicGameState implements GameParameters{
 		
 		word = left + curr_char + right;
 		
-		if (lexicon.check(word)) {
+		//if (lexicon.check(word)) {
 			word_score = score * word_multiplier;
-		}
+		//}
 		
 		word_tiles_v.sort(new Comparator<Tile>() {
 
@@ -726,7 +915,7 @@ public class GameplayState extends BasicGameState implements GameParameters{
 		int word_spacing = 20;
 		
 		for(int i = 0 ; i < current_words.size(); i ++) {
-			graphic.drawString(current_words.get(i).getValue(), 700, 280 + i * word_spacing);
+			graphic.drawString(current_words.get(i).getValue() + ", " + current_words.get(i).getScore()  , 700, 280 + i * word_spacing);
 		}
 		
 		// Dialogue box strings

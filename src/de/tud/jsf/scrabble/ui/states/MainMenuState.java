@@ -18,6 +18,8 @@ import eea.engine.event.ANDEvent;
 import eea.engine.event.basicevents.MouseClickedEvent;
 import eea.engine.event.basicevents.MouseEnteredEvent;
 
+import de.tud.jsf.scrabble.model.player.*;
+
 
 public class MainMenuState extends BasicGameState {
 	private int stateID; 			
