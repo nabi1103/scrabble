@@ -46,8 +46,9 @@ public class GameplayState extends BasicGameState implements GameParameters{
 	private Lexicon lexicon = new Lexicon();
 	private static ArrayList<Word> current_words = new ArrayList<>();
 	
+	// Player data
 	private Player[] players;
-	private int numberOfPlayers = 2;
+	private int numberOfPlayers = 4;
 	private Player currentPlayer;
 	
 	// Functional variables
@@ -58,6 +59,7 @@ public class GameplayState extends BasicGameState implements GameParameters{
 	//String UI
 	private static String most_recent_horizontal_word = "";
 	private static int most_recent_horizontal_score = 0;
+	private static String displayPlayerID;
 	
 	private static String most_recent_vertical_word = "";
 	private static int most_recent_vertical_score = 0;
@@ -69,18 +71,17 @@ public class GameplayState extends BasicGameState implements GameParameters{
 	private static String undo_button_generic_text = "";
 	private static String warning_button_generic_text = "";
 	
-	// Test
 	
 	// Undo button
 	private List<Entity> turn_begin_state = new ArrayList<>();
 	private int turn_begin_score = 0;
 	private char[][] turn_begin_char_grid = new char[BOARDSIZE][BOARDSIZE];
 	
-	//
-	private int numberOfColumns = 0;
+	/*private int numberOfColumns = 0;
 	private int numberOfRows = 0;
 	private int lineX = -1;
-	private int lineY = -1;
+	private int lineY = -1;*/
+	private ArrayList<Tile> newTilesThisTurn = new ArrayList<>() ;
 	
 	GameplayState(int sid ) {
         this.stateID = sid;
@@ -94,10 +95,11 @@ public class GameplayState extends BasicGameState implements GameParameters{
 		// Init player
 		players = new Player[numberOfPlayers];
 		for (int i = 0 ; i < numberOfPlayers ; i ++) {
-			players[i] = new Player("" + i + 1);
+			players[i] = new Player("" + (i + 1),i);
 		}
 		// Randomize first player to go
-		currentPlayer = players[new Random().nextInt(numberOfPlayers-1) + 1];
+		currentPlayer = players[new Random().nextInt(numberOfPlayers)];
+		displayPlayerID = currentPlayer.getName();
 		
 		System.out.println("INIT");
 		
@@ -152,12 +154,15 @@ public class GameplayState extends BasicGameState implements GameParameters{
 		undo.addImageComponent();
 		entityManager.addEntity(stateID, undo);
 		triggerUndoDialogueBox(undo);
-		// Play button
-		/*
-		Vector2f play_pos = new Vector2f(750,120);
+		// Play button		
+		Vector2f play_pos = new Vector2f(750,320);
 		DialogueButton play = new DialogueButton("play_button", play_pos, "commit");
 		play.addImageComponent();
-		entityManager.addEntity(stateID, play);*/
+		entityManager.addEntity(stateID, play);
+		triggerPlay(play);
+		// Recall button
+		// Next turn button
+		
 		// TODO: Challenge Button
 		// TODO: Exchange Button
 		// TODO: Show letters Button
@@ -173,13 +178,87 @@ public class GameplayState extends BasicGameState implements GameParameters{
 		
 	}
 	// PLAY BUTTON
-	public void triggerPlay(DialogueButton button) {
-	ArrayList<Entity> tmp_rmv = new ArrayList<>();
+	public void	triggerPlay(DialogueButton button) {
+		ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+		Action clickOnButton = new Action() {
+			@Override
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				// Check if the rules for the first turn is not broken; if that is the case, the play is invalid and the player must redo their moves
+				if (turn == 0 && getEntityByPos(new Vector2f(380,380)).size() < 2) {			
+					warning_button_generic_text = "The first turn must use the centermost tile!";
+					return;
+				}
+				// Check if all the new tiles placed are in the same horizontal/vertical line
+				int currentX = -1; // Init value = -1
+				int currentY = -1;
+				int numberOfRows = 0;
+				int numberOfColumns = 0;
+				for (Tile t : newTilesThisTurn) {					
+					// Turn coordinates into integer
+					int x = Integer.parseInt(t.getID().split("_")[0]);
+					int y = Integer.parseInt(t.getID().split("_")[1]);
+					if (x != currentX) {
+						numberOfRows ++;
+						if (currentX == -1) currentX = x; 
+					}
+					if (y != currentY) {
+						numberOfColumns ++;
+						if (currentY == -1) currentY = y; 
+					}
+				}
+				if (numberOfRows > 1 && numberOfColumns > 1) {
+					warning_button_generic_text = "The new tiles are not placed in the same horizontal / vertical line!";
+					return;
+				}
+				// Update turn count
+				turn ++;
+				// Clear status bar
+				warning_button_generic_text = "";
+				// Clear word bar - only for testing (?)
+				most_recent_horizontal_word = "";
+				most_recent_horizontal_score = 0;
+				
+				most_recent_vertical_word = "";
+				most_recent_vertical_score = 0;
+								
+				// Update score for current player
+				int newScore = currentPlayer.getScore() + current_words.stream().mapToInt((w) -> w.getScore()).sum();
+				currentPlayer.setScore(newScore);
+				
+				// Go to next player
+				currentPlayer = players[(currentPlayer.getID() + 1) % numberOfPlayers];
+				displayPlayerID = currentPlayer.getName();
+				
+				
+				// Clear multiplier (?)
+				
+				// Clear store arrays
+				current_words.clear();
+				newTilesThisTurn.clear();
+				
+				// Update state and char_grid
+				turn_begin_state.clear();
+				
+				for (Entity e :entityManager.getEntitiesByState(stateID) ) {
+					turn_begin_state.add(e);
+				}
+				
+				for(int i = 0; i < 15; i++) {
+					for(int j = 0; j < 15; j++) {
+						turn_begin_char_grid[i][j] = char_grid[i][j];
+					}
+				}
+			}
+		};
+		clickEvent.addAction(clickOnButton);
+		button.addComponent(clickEvent);
+	}
+	public void triggerPlayTest(DialogueButton button) {
 	ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
 	Action clickOnButton = new Action() {
 		@Override
 		public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
-			DialogueBox box = button.getDialogueBox();
+			//DialogueBox box = button.getDialogueBox();
 			
 			// Update UI elements accordingly
 			if (turn == 0 && getEntityByPos(new Vector2f(380,380)).size() < 2) {
@@ -194,9 +273,9 @@ public class GameplayState extends BasicGameState implements GameParameters{
 				
 				current_words.clear();
 				
-				entityManager.removeEntity(stateID, box.getButtons()[1]);
+				/*entityManager.removeEntity(stateID, box.getButtons()[1]);
 				entityManager.removeEntity(stateID, box);
-				entityManager.removeEntity(stateID, button);
+				entityManager.removeEntity(stateID, button);*/
 				
 				for(Entity e : turn_begin_state) {
 					entityManager.addEntity(stateID, e);
@@ -215,8 +294,7 @@ public class GameplayState extends BasicGameState implements GameParameters{
 				return;
 			}
 			
-			lineX = -1;
-			lineY = -1;
+			
 			
 			turn = turn + 1;
 			warning_button_generic_text = "";
@@ -232,16 +310,17 @@ public class GameplayState extends BasicGameState implements GameParameters{
 			
 			current_words.forEach((w)-> {w.getTiles().forEach((t) -> {t.clearMultiplier();});});
 			current_words.clear();
-		
+		/*
 			// Remove dialogue box
 			entityManager.removeEntity(stateID, box.getButtons()[1]);
 			entityManager.removeEntity(stateID, box);
 			entityManager.removeEntity(stateID, button);
+		*/	
 			
 			// Restore overlapping entities
-			for (Entity e : tmp_rmv) {
+			/*for (Entity e : tmp_rmv) {
 				entityManager.addEntity(stateID, e);
-			}
+			}*/
 			
 			turn_begin_state.clear();
 			
@@ -380,11 +459,8 @@ public class GameplayState extends BasicGameState implements GameParameters{
 					clickable = true;
 					
 					return;
-				}
-				
-				lineX = -1;
-				lineY = -1;
-				
+				}				
+					
 				turn = turn + 1;
 				warning_button_generic_text = "";
 				
@@ -557,39 +633,46 @@ public class GameplayState extends BasicGameState implements GameParameters{
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
 				if(!clickable) return;
 				if (!move_letter) return;
-				if(getEntityByPos(t.getPosition()).size() > 1) return;
+				if(getEntityByPos(t.getPosition()).size() > 1) return; // Placing letter on a bereits gelegte Tile will not work
 				
+				
+				// Turn coordiantes into integer
 				int x = Integer.parseInt(t.getID().split("_")[0]);
 				int y = Integer.parseInt(t.getID().split("_")[1]);
 				
 				
-				if(turn > 0) {
-					char left = '\u0000';
-					char right = '\u0000';
-					char up = '\u0000';
-					char down = '\u0000';
-					if (y != 0) {
-						left = char_grid[x][y - 1];
+				if(turn >= 0) { // Redundant IF block									
+					boolean isBoardEmpty = true;
+					// Check if board is empty
+					for (int i = 0 ; i < char_grid.length ; i ++) {
+						for (int j = 0 ; j < char_grid.length ; j ++) { // Assume board is always squared
+							if (char_grid[i][j] != '\u0000') {
+								isBoardEmpty = false;
+							}
+						}
 					}
-					
-					if (y != BOARDSIZE - 1) {
-						right = char_grid[x][y + 1];
-					}
-					
-					if (x != 0) {
-						up = char_grid[x - 1][y];
-					}
-					
-					if (x != BOARDSIZE - 1) {
-						down = char_grid[x + 1][y];
-					}
-				
-					if (up == '\u0000' && down == '\u0000' && left == '\u0000' && right == '\u0000') {
-						move_letter = false;
-						return;
-					}					
-					
+					if (!isBoardEmpty) { 
+						// Check if the tile has any adjacent tiles; if not then it is an illegal move	
+						char left = '\u0000';
+						char right = '\u0000';
+						char up = '\u0000';
+						char down = '\u0000';
+						if (y != 0) 
+							left = char_grid[x][y - 1];										
+						if (y != BOARDSIZE - 1) 
+							right = char_grid[x][y + 1];										
+						if (x != 0) 
+							up = char_grid[x - 1][y];										
+						if (x != BOARDSIZE - 1) 
+							down = char_grid[x + 1][y];									
+						if (up == '\u0000' && down == '\u0000' && left == '\u0000' && right == '\u0000') {
+							move_letter = false;
+							return;
+						}	
+					}														
 				}
+				/*
+				// Check if all the new letters are on the same horizontal / vertical line 
 				if (lineX == -1) {
 					numberOfRows = 1;
 					lineX = x;
@@ -608,7 +691,9 @@ public class GameplayState extends BasicGameState implements GameParameters{
 					numberOfColumns = tempY;
 					move_letter = false;
 					return;
-				}
+				}*/
+				// Since this tile can be placed, add it to the list
+				newTilesThisTurn.add(t);
 												
 				Letter new_letter = new Letter(tmp_letter.getID(), tmp_letter.getValue(), t.getPosition());
 				
@@ -918,8 +1003,10 @@ public class GameplayState extends BasicGameState implements GameParameters{
 			graphic.drawString(current_words.get(i).getValue() + ", " + current_words.get(i).getScore()  , 700, 280 + i * word_spacing);
 		}
 		
+		graphic.drawString("Current player: Player " + displayPlayerID,700,50);
+		
 		// Dialogue box strings
-		graphic.drawString(commit_button_generic_text, 250, 300);
+		//graphic.drawString(commit_button_generic_text, 250, 300);
 		graphic.drawString(undo_button_generic_text, 250, 300);
 		graphic.drawString(warning_button_generic_text, 200, 30);
 		
