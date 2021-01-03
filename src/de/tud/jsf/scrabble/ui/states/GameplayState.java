@@ -2,6 +2,7 @@ package de.tud.jsf.scrabble.ui.states;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -71,6 +72,10 @@ public class GameplayState extends BasicGameState implements GameParameters{
 	private static String undo_button_generic_text = "";
 	private static String warning_text = "";
 	
+	private ArrayList<String> total_letters = new ArrayList<String>();
+	private ArrayList<Letter> current_display_letters = new ArrayList<Letter>();
+	private ArrayList<Letter> used_letters = new ArrayList<Letter>();
+	
 	// Undo button
 	private List<Entity> turn_begin_state = new ArrayList<>();
 	private int turn_begin_score = 0;
@@ -95,10 +100,22 @@ public class GameplayState extends BasicGameState implements GameParameters{
         entityManager = StateBasedEntityManager.getInstance();
      }
 	
-	int debug_size = -1;
      
 	@Override
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
+		// Create new BACKGROUND entity & add to manager
+				Entity background = new Entity("background");
+				background.setPosition(new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
+				background.addComponent(new ImageRenderComponent(new Image("assets/background.png")));
+				entityManager.addEntity(stateID, background);
+				
+				for (int i = 0 ; i < BOARDSIZE ; i ++) {
+					for (int j = 0 ; j < BOARDSIZE ; j ++) {
+						entityManager.addEntity(stateID, tiles[i][j]);
+						moveLetterToBoardTile(tiles[i][j]);
+					}
+				}
+		
 		// Init player
 		players = new Player[numberOfPlayers];
 		for (int i = 0 ; i < numberOfPlayers ; i ++) {
@@ -108,24 +125,20 @@ public class GameplayState extends BasicGameState implements GameParameters{
 		currentPlayer = players[new Random().nextInt(numberOfPlayers)];
 		displayPlayerID = currentPlayer.getName();
 		displayPlayerScore = currentPlayer.getScore();
-		System.out.println("INIT");
 		
-		// Create new BACKGROUND entity & add to manager
-		Entity background = new Entity("background");
-		background.setPosition(new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
-		background.addComponent(new ImageRenderComponent(new Image("assets/background.png")));
-		entityManager.addEntity(stateID, background);
+		// Initialize letters
+		total_letters = initLetter();
 		
-		for (int i = 0 ; i < BOARDSIZE ; i ++) {
-			for (int j = 0 ; j < BOARDSIZE ; j ++) {
-				entityManager.addEntity(stateID, tiles[i][j]);
-				moveLetterToBoardTile(tiles[i][j]);
+		for(Player p : players) {
+			for(int i = 0; i < 7; i ++) {
+				String to_add = total_letters.get(new Random().nextInt(total_letters.size()));
+				p.addLetter(to_add);
+				total_letters.remove(to_add);
 			}
 		}
-		// Create letters
 		
 		// Set<Character> alphabet = Set.of('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z', '_');
-		
+		/*
 		for(int i = 0 ; i < 7; i++) {
 			char c = ' ';
 			if (i % 3 ==  0) {
@@ -146,23 +159,10 @@ public class GameplayState extends BasicGameState implements GameParameters{
 			moveLetterToBoardLetter(tmp);
 			entityManager.addEntity(stateID, tmp);
 		}
+		*/
 		
 		// Interactive buttons
 		// Commit button (PLAY)
-		
-		/*
-		Vector2f commit_pos = new Vector2f(750, 120);
-		DialogueButton commit = new DialogueButton("commit_button", commit_pos, "commit");
-		commit.addImageComponent();
-		entityManager.addEntity(stateID, commit);
-		triggerCommitDialogueBox(commit);
-		// Undo button (RECALL)
-		Vector2f undo_pos = new Vector2f(860, 120);
-		DialogueButton undo = new DialogueButton("undo_button", undo_pos, "undo");
-		undo.addImageComponent();
-		entityManager.addEntity(stateID, undo);
-		triggerUndoDialogueBox(undo);
-		*/
 		
 		// Play button		
 		Vector2f play_pos = new Vector2f(750, 120);
@@ -200,6 +200,8 @@ public class GameplayState extends BasicGameState implements GameParameters{
 			turn_begin_state.add(e);
 			last_player_turn_begin_state.add(e);
 		}
+		
+		renderPlayerLetters(currentPlayer);
 		
 	}
 	// PLAY BUTTON
@@ -251,15 +253,26 @@ public class GameplayState extends BasicGameState implements GameParameters{
 				currentPlayer.setScore(newScore);
 				last_player_added_point = current_words.stream().mapToInt((w) -> w.getScore()).sum();
 				
+				used_letters.forEach((l) -> {
+					currentPlayer.removeLetter(l.getID());
+				});
+				
 				// Parameter for check
 				checkable = true;
 				last_player_added_word.clear();
-				last_player = currentPlayer;
 				last_player_turn_begin_state.clear();
+				
+				current_display_letters.forEach((l) -> {
+					entityManager.removeEntity(stateID, l);
+				});
+								
+				last_player = currentPlayer;
 				current_words.forEach((w) -> {last_player_added_word.add(w);});
+				
 				for (Entity e : turn_begin_state) {
 					last_player_turn_begin_state.add(e);
 				}
+				
 				for(int i = 0; i < 15; i++) {
 					for(int j = 0; j < 15; j++) {
 						last_player_turn_begin_char_grid[i][j] = turn_begin_char_grid[i][j];
@@ -287,81 +300,17 @@ public class GameplayState extends BasicGameState implements GameParameters{
 						turn_begin_char_grid[i][j] = char_grid[i][j];
 					}
 				}
+				renderPlayerLetters(currentPlayer);
+				// Test
+				for(Player p : players) {
+					System.out.println(p.getName());
+					System.out.println(p.getLetters());
+				}
 			}
 		};
 		clickEvent.addAction(clickOnButton);
 		button.addComponent(clickEvent);
 	}
-	/*
-	public void triggerPlayTest(DialogueButton button) {
-		ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
-		Action clickOnButton = new Action() {
-			@Override
-			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {				
-				// Update UI elements accordingly
-				if (turn == 0 && getEntityByPos(new Vector2f(380,380)).size() < 2) {
-					
-					entityManager.clearEntitiesFromState(stateID);
-					
-					most_recent_horizontal_word = "";
-					most_recent_horizontal_score = 0;
-					
-					most_recent_vertical_word = "";
-					most_recent_vertical_score = 0;
-					
-					current_words.clear();
-					
-					for(Entity e : turn_begin_state) {
-						entityManager.addEntity(stateID, e);
-					} 
-	
-					for(int i = 0; i < 15; i++) {
-						for(int j = 0; j < 15; j++) {
-							char_grid[i][j] = turn_begin_char_grid[i][j];
-						}
-					}
-					
-					warning_button_generic_text = "The first turn must use the centermost tile!";
-					commit_button_generic_text = "";
-					clickable = true;
-					
-					return;
-				}
-				
-				turn = turn + 1;
-				warning_button_generic_text = "";
-				
-				total_score = total_score + current_words.stream().mapToInt((w) -> w.getScore()).sum();
-				turn_begin_score = total_score;
-				
-				most_recent_horizontal_word = "";
-				most_recent_horizontal_score = 0;
-				
-				most_recent_vertical_word = "";
-				most_recent_vertical_score = 0;
-				
-				current_words.forEach((w)-> {w.getTiles().forEach((t) -> {t.clearMultiplier();});});
-				current_words.clear();
-				turn_begin_state.clear();
-				
-				for (Entity e :entityManager.getEntitiesByState(stateID) ) {
-					turn_begin_state.add(e);
-				}
-				
-				for(int i = 0; i < 15; i++) {
-					for(int j = 0; j < 15; j++) {
-						turn_begin_char_grid[i][j] = char_grid[i][j];
-					}
-				}
-				
-				commit_button_generic_text = "";
-				clickable = true;
-			}
-		};
-	clickEvent.addAction(clickOnButton);
-	button.addComponent(clickEvent);
-	}
-	*/
 
 	// UNDO BUTTON
 	public void triggerUndo(DialogueButton button) {
@@ -381,6 +330,8 @@ public class GameplayState extends BasicGameState implements GameParameters{
 				most_recent_vertical_score = 0;
 				
 				current_words.clear();
+				used_letters.clear();
+				
 				newTilesThisTurn.clear();
 				
 				// Restore old entities
@@ -393,7 +344,7 @@ public class GameplayState extends BasicGameState implements GameParameters{
 						char_grid[i][j] = turn_begin_char_grid[i][j];
 					}
 				}
-				
+				renderPlayerLetters(currentPlayer);
 				clickable = true;
 			}
 		};
@@ -420,7 +371,6 @@ public class GameplayState extends BasicGameState implements GameParameters{
 				
 				last_player_added_word.forEach((w) -> {
 					if(!lexicon.check(w.getValue()) && checkable) {
-						System.out.println("HERE");
 						entityManager.clearEntitiesFromState(stateID);
 						turn_begin_state.clear();
 						
@@ -438,6 +388,8 @@ public class GameplayState extends BasicGameState implements GameParameters{
 								turn_begin_char_grid[i][j] = last_player_turn_begin_char_grid[i][j];
 							}
 						}
+						
+						renderPlayerLetters(currentPlayer);
 						
 						checkable = false;
 						return;
@@ -811,6 +763,7 @@ public class GameplayState extends BasicGameState implements GameParameters{
 												
 				Letter new_letter = new Letter(tmp_letter.getID(), tmp_letter.getValue(), t.getPosition());
 				
+				used_letters.add(new_letter);
 				char_grid[x][y] = new_letter.getValue();
 				
 				entityManager.removeEntity(stateID, entityManager.getEntity(stateID, tmp_letter.getID()));
@@ -820,14 +773,14 @@ public class GameplayState extends BasicGameState implements GameParameters{
 				tmp_letter = null;
 				
 				// TEST
-				System.out.println("current grid:");
-
-				for(int i1 = 0; i1 < 15; i1++) {
-					for(int j1 = 0; j1 < 15; j1++) {
-						System.out.print("[" + char_grid[i1][j1] + "]");
-					}
-					System.out.println(" ");
-				}
+//				System.out.println("current grid:");
+//
+//				for(int i1 = 0; i1 < 15; i1++) {
+//					for(int j1 = 0; j1 < 15; j1++) {
+//						System.out.print("[" + char_grid[i1][j1] + "]");
+//					}
+//					System.out.println(" ");
+//				}
 				// TEST 
 				
 				Word[] curr_words = getWord(x,y);
@@ -1055,6 +1008,61 @@ public class GameplayState extends BasicGameState implements GameParameters{
 		}
 		
 		return -1;
+	}
+	
+	public ArrayList<String> initLetter() {
+		ArrayList<String> result = new ArrayList<String>();
+		HashMap<Character, Integer > letter_map = new HashMap<Character, Integer>();
+		
+		letter_map.put('a', 9);
+		letter_map.put('b', 2);
+		letter_map.put('c', 2);
+		letter_map.put('d', 4);
+		letter_map.put('e', 12);
+		letter_map.put('f', 2);
+		letter_map.put('g', 3);
+		letter_map.put('h', 2);
+		letter_map.put('i', 9);
+		letter_map.put('j', 1);
+		letter_map.put('k', 1);
+		letter_map.put('l', 4);
+		letter_map.put('m', 2);
+		letter_map.put('n', 6);
+		letter_map.put('o', 8);
+		letter_map.put('p', 2);
+		letter_map.put('q', 1);
+		letter_map.put('r', 6);
+		letter_map.put('s', 4);
+		letter_map.put('t', 6);
+		letter_map.put('u', 4);
+		letter_map.put('v', 2);
+		letter_map.put('x', 1);
+		letter_map.put('y', 2);
+		letter_map.put('z', 1);
+		letter_map.put('w', 2);
+		letter_map.put('_', 2);
+		
+		for (char c : letter_map.keySet()) {	
+			for (int i = 0; i < letter_map.get(c); i++) {
+				//Letter tmp = new Letter("letter_" + c + "_" + Integer.toString(i), c, dummy);
+				result.add(c + "_" +i);
+			}
+		}
+		return result;
+	}
+	
+	public void renderPlayerLetters(Player p) {
+		current_display_letters.clear();
+		for(int i = 0; i < p.getLetters().size(); i ++) {
+			Vector2f tv = new Vector2f(800, 400 + 50*i);
+			Letter l = new Letter(p.getLetters().get(i), p.getLetters().get(i).charAt(0), tv);
+			moveLetterToBoardLetter(l);
+			entityManager.addEntity(stateID, l);
+			current_display_letters.add(l);
+		}
+		current_display_letters.forEach((l) -> {System.out.println(l.getID());});
+		System.out.println("____________");
+	//	entityManager.getEntitiesByState(stateID).forEach((e) -> {System.out.println(e.getID());});
 	}
 	
 	@Override

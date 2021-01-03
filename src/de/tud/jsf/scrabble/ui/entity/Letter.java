@@ -47,66 +47,6 @@ public class Letter extends Entity implements GameParameters{
 		return value;
 	}
 	
-	/*
-	
-	public void setScore() {
-		Set<Character> blank = Set.of('_');
-		
-		if (blank.contains(this.value)) {
-			this.score = 0;
-			return;
-		}
-		
-		Set<Character> one = Set.of('a','e','i','n','o','r','s','t','u','l');
-		
-		if (one.contains(this.value)) {
-			this.score = 1;
-			return;
-		}
-		Set<Character> two = Set.of('g','d');
-		
-		if (two.contains(this.value)) {
-			this.score = 2;
-			return;
-		}
-		
-		Set<Character> three = Set.of('b','c','m','p');
-		
-		if (three.contains(this.value)) {
-			this.score = 3;
-			return;
-		}
-		
-		Set<Character> four = Set.of('w','f','y','h','v');
-		
-		if (four.contains(this.value)) {
-			this.score = 4;
-			return;
-		}
-		
-		Set<Character> five = Set.of('k');
-		
-		if (five.contains(this.value)) {
-			this.score = 5;
-			return;
-		}
-		
-		Set<Character> eight = Set.of('j','x');
-		
-		if (eight.contains(this.value)) {
-			this.score = 8;
-			return;
-		}
-		
-		Set<Character> ten = Set.of('q','z');
-		
-		if (ten.contains(this.value)) {
-			this.score = 10;
-			return;
-		}
-	}
-	*/
-	
 	public ImageRenderComponent addImageComponent() {
 		ImageRenderComponent image = null;
 		

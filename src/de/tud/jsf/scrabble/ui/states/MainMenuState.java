@@ -20,7 +20,6 @@ import eea.engine.event.basicevents.MouseEnteredEvent;
 
 import de.tud.jsf.scrabble.model.player.*;
 
-
 public class MainMenuState extends BasicGameState {
 	private int stateID; 			
 	private StateBasedEntityManager entityManager; 	//
