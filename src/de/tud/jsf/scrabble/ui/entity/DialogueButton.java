@@ -83,6 +83,16 @@ public class DialogueButton extends Entity implements GameParameters{
 			}
 			break;
 			
+		case "check":
+			try {
+				image = new ImageRenderComponent(new Image(CHECK_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + CHECK_BUTTON);
+				e.printStackTrace();
+			}
+			break;
+			
 		}
 		
 		
