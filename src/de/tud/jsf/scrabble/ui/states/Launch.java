@@ -20,9 +20,11 @@ public class Launch extends StateBasedGame implements GameParameters{
 	public void initStatesList(GameContainer arg0) throws SlickException {
 		addState(new MainMenuState(MAINMENU_STATE));
         addState(new GameplayState(GAMEPLAY_STATE));
+        addState(new CEState(CE_STATE));
 
         StateBasedEntityManager.getInstance().addState(MAINMENU_STATE);
         StateBasedEntityManager.getInstance().addState(GAMEPLAY_STATE);
+        StateBasedEntityManager.getInstance().addState(CE_STATE);
 	}
 	
 	public static void main(String args[]) throws SlickException {

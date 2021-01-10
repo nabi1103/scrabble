@@ -2,8 +2,6 @@ package de.tud.jsf.scrabble.model.player;
 
 import java.util.ArrayList;
 
-import de.tud.jsf.scrabble.ui.entity.Letter;
-
 public class Player {
 	
 	private String name;

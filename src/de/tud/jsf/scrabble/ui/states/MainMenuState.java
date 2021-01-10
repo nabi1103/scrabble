@@ -1,5 +1,6 @@
 package de.tud.jsf.scrabble.ui.states;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -9,7 +10,7 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import eea.engine.action.Action;
-import eea.engine.action.basicactions.ChangeStateInitAction;
+import eea.engine.action.basicactions.ChangeStateAction;
 import eea.engine.action.basicactions.QuitAction;
 import eea.engine.component.render.ImageRenderComponent;
 import eea.engine.entity.Entity;
@@ -18,7 +19,6 @@ import eea.engine.event.ANDEvent;
 import eea.engine.event.basicevents.MouseClickedEvent;
 import eea.engine.event.basicevents.MouseEnteredEvent;
 
-import de.tud.jsf.scrabble.model.player.*;
 
 public class MainMenuState extends BasicGameState {
 	private int stateID; 			
@@ -49,7 +49,7 @@ public class MainMenuState extends BasicGameState {
     	new_Game_Entity.addComponent(new ImageRenderComponent(new Image("assets/entry.png")));
     	
     	ANDEvent mainEvents = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
-    	Action new_Game_Action = new ChangeStateInitAction(Launch.GAMEPLAY_STATE);
+    	Action new_Game_Action = new ChangeStateAction(Launch.GAMEPLAY_STATE);
     	mainEvents.addAction(new_Game_Action);
     	new_Game_Entity.addComponent(mainEvents);
     	
@@ -71,6 +71,7 @@ public class MainMenuState extends BasicGameState {
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics graphic) throws SlickException {
 		entityManager.renderEntities(container, game, graphic);
+		graphic.setColor(new Color(255, 255, 255));
 		
 		int counter = 0;
 		

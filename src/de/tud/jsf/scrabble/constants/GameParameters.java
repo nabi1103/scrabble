@@ -16,7 +16,7 @@ public interface GameParameters {
 	public static final int BOARDSIZE = 15;
 	public static final float TILE_SCALE_FACTOR = 0.8f;
 	public static final float BOARD_START_X = 100;
-	public static final float BOARD_START_y = 100;
+	public static final float BOARD_START_Y = 100;
 	
 	// Tiles
 	public static final float TILE_WIDTH = 50 * TILE_SCALE_FACTOR;
@@ -29,7 +29,6 @@ public interface GameParameters {
 	public static final String PINK_TILE = "assets/scrabble/tile/tile_pink.png";
 	public static final String STAR_TILE = "assets/scrabble/tile/tile_star.png";
 	
-
 	// Letter
 	public static final float LETTER_SCALE_FACTOR = 0.15f;
 	
