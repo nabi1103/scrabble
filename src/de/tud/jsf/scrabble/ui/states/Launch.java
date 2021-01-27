@@ -38,6 +38,7 @@ public class Launch extends StateBasedGame implements GameParameters{
 		
 		AppGameContainer app = new AppGameContainer(new Launch());
         app.setDisplayMode(WINDOW_WIDTH, WINDOW_HEIGHT, false);
+        app.setTargetFrameRate(FRAME_RATE);
         app.start();
 	}
 }

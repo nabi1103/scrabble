@@ -42,10 +42,14 @@ public class CEState extends BasicGameState implements GameParameters {
 	private StateBasedEntityManager entityManager;
 
 	private Entity left_bound, right_bound, bar;
-	private ArrayList<Letter> bag_of_letters_ce = new ArrayList<Letter>();
+	private ArrayList<Entity> bag_of_letters_ce = new ArrayList<Entity>();
 
-	private Timer timer = new Timer();
+	private ArrayList<String> taken_letters = new ArrayList<String>();
 
+	private Timer timer;
+
+	static boolean play_clickable = false;
+	static int limit = 7;
 
 	CEState(int sid) {
 		this.stateID = sid;
@@ -54,63 +58,72 @@ public class CEState extends BasicGameState implements GameParameters {
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
-		// Background
-		Entity background = new Entity("menu");
-		background.setPosition(new Vector2f(480, 360));
-		background.addComponent(new ImageRenderComponent(new Image("/assets/background.png")));
-//    	entityManager.addEntity(stateID, background);	
-
+		// Hanging letters
+		GameplayState.bag_of_letters.forEach((letter) -> {
+			renderDroppableLetter(letter);
+		});
 
 		// Return to Gameplay State (testing only)
-		Entity new_Game_Entity = new Entity("return");
+		Entity return_button = new Entity("return");
 
-		new_Game_Entity.setPosition(new Vector2f(850, 220));
-		new_Game_Entity.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/grey_boxCross.png")));
+		return_button.setPosition(new Vector2f(850, 220));
+		return_button.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/grey_boxCross.png")));
 
-		ANDEvent mainEvents = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+		ANDEvent return_to_gameplay_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
 		Action new_Game_Action = new ChangeStateAction(Launch.GAMEPLAY_STATE);
-		mainEvents.addAction(new Action() {
+		return_to_gameplay_event.addAction(new Action() {
 			@Override
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
-				bag_of_letters_ce.clear();
+				timer.cancel();
+//				bag_of_letters_ce.clear();
 			}
 		});
-		mainEvents.addAction(new_Game_Action);
-		new_Game_Entity.addComponent(mainEvents);
-		entityManager.addEntity(stateID, new_Game_Entity);
-		
+		return_to_gameplay_event.addAction(new_Game_Action);
+		return_button.addComponent(return_to_gameplay_event);
+		entityManager.addEntity(stateID, return_button);
+
 		// Start button
-		Entity test_box = new Entity("test_count");
+		Entity play_button = new Entity("test_count");
 
-		test_box.setPosition(new Vector2f(800, 220));
-		test_box.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/grey_boxCheckmark.png")));
+		play_button.setPosition(new Vector2f(800, 220));
+		play_button.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/grey_boxCheckmark.png")));
 
-		ANDEvent click_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+		ANDEvent play_start = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
 		Action click_action = new Action() {
 			@Override
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				if (!play_clickable)
+					return;
+
+				play_clickable = false;
+
 				bag_of_letters_ce.forEach((letter) -> {
-					if(!GameplayState.bag_of_letters.contains(letter.getID())) {
+					if (!GameplayState.bag_of_letters.contains(letter.getID())) {
 						bag_of_letters_ce.remove(letter);
-					} else {
-						System.out.println(letter.getValue());
+						entityManager.removeEntity(stateID, letter);
 					}
 				});
+
+				timer = new Timer();
 
 				timer.scheduleAtFixedRate(new TimerTask() {
 					@Override
 					public void run() {
-						Letter l = bag_of_letters_ce.get(new Random().nextInt(bag_of_letters_ce.size()));
-						
+						Entity l = bag_of_letters_ce.get(new Random().nextInt(bag_of_letters_ce.size()));
+						bag_of_letters_ce.remove(l);
+						dropping(l);
+						if (taken_letters.size() >= limit || bag_of_letters_ce.size() <= 0) {
+							stopCEGame();
+						}
 					}
 				}, 0, 1000);
-				
-				System.out.println();
+
 			}
 		};
-		click_event.addAction(click_action);
-		test_box.addComponent(click_event);
-		entityManager.addEntity(stateID, test_box);
+		play_start.addAction(click_action);
+		play_button.addComponent(play_start);
+
+		entityManager.addEntity(stateID, play_button);
 
 		// Border
 		left_bound = setLeftBound();
@@ -121,12 +134,10 @@ public class CEState extends BasicGameState implements GameParameters {
 
 		CollisionEvent touch_bound = new CollisionEvent();
 		touch_bound.addAction(new Action() {
-
 			@Override
 			public void update(GameContainer container, StateBasedGame g, int i, Component c) {
 
 				if (bar.collides(left_bound)) {
-
 					bar.setPosition(new Vector2f(left_bound.getShape().getCenterX() + left_bound.getSize().getX() * 0.5f
 							+ bar.getSize().getX() * 0.5f, bar.getPosition().getY()));
 				}
@@ -137,23 +148,89 @@ public class CEState extends BasicGameState implements GameParameters {
 				}
 			}
 		});
+
 		bar.addComponent(touch_bound);
-		
-		GameplayState.bag_of_letters.forEach((letter) -> {
-			Vector2f tv = new Vector2f(120 + new Random().nextInt(460), 90);
-			Letter l = new Letter(letter, letter.charAt(0), tv);
-			letterDown(l);
-			bag_of_letters_ce.add(l);
-		});
-		
-		LoopEvent fall = new LoopEvent();
-		fall.addAction(new MoveDownAction(0.1f));
-		bag_of_letters_ce.get(0).addComponent(fall);
-	
 	}
 
-	public void letterDown(Letter l) {
+	public void dropping(Entity l) {
+		Vector2f start_pos = l.getPosition();
+		l.setVisible(true);
+		LoopEvent loop = new LoopEvent();
+		loop.addAction(new MoveDownAction(0.1f * (new Random().nextInt(3) + 1)));
+		loop.addAction(new Action() {
+			@Override
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				if (l.getPosition().getY() > arg0.getHeight() || l.getPosition().getY() < 0
+						|| taken_letters.size() == limit) {
+					l.setPosition(start_pos);
+					bag_of_letters_ce.add(l);
+					l.removeComponent(loop);
+					l.setVisible(false);
+				}
+			}
+		});
+		l.addComponent(loop);
+	}
+
+	public void renderDroppableLetter(String letter) {
+		Entity l = new Entity(letter);
+		Vector2f tv = new Vector2f(120 + new Random().nextInt(460), 90);
+		l.setVisible(false);
+		l.setPosition(tv);
+		l.setPassable(false);
+		l.setScale(LETTER_SCALE_FACTOR);
+
+		ImageRenderComponent image = null;
+
+		for (String path : LETTERS) {
+			char image_id;
+			image_id = path.charAt(30);
+			if (letter.charAt(0) == Character.toLowerCase(image_id)) {
+				try {
+					image = new ImageRenderComponent(new Image(path));
+					l.addComponent(image);
+				} catch (SlickException e) {
+					System.err.println("Cannot find file " + path);
+					e.printStackTrace();
+				}
+			}
+		}
+
+		// Touching bar
+		CollisionEvent touch_bar = new CollisionEvent();
+		touch_bar.addAction(new Action() {
+			@Override
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				if (l.collides(bar)) {
+					taken_letters.add(l.getID());
+					bag_of_letters_ce.remove(l);
+					entityManager.removeEntity(stateID, l);
+					renderTakenLetter();
+				}
+			}
+		});
+		l.addComponent(touch_bar);
+
 		entityManager.addEntity(stateID, l);
+		bag_of_letters_ce.add(l);
+	}
+
+	public void renderTakenLetter() {
+		for (int i = 0; i < taken_letters.size(); i++) {
+			Vector2f tv;
+			if (i < 4) {
+				tv = new Vector2f(710 + 50 * i, 400);
+			} else {
+				tv = new Vector2f(880 - 50 * (7 - i), 450);
+			}
+			Letter l = new Letter(taken_letters.get(i), taken_letters.get(i).charAt(0), tv);
+			entityManager.addEntity(stateID, l);
+		}
+	}
+
+	public void stopCEGame() {
+		System.out.println("CE game stopped");
+		timer.cancel();
 	}
 
 	public Entity setLeftBound() {
@@ -199,7 +276,7 @@ public class CEState extends BasicGameState implements GameParameters {
 		KeyDownEvent move_left = new KeyDownEvent(Keyboard.KEY_LEFT);
 		move_left.addAction(new MoveLeftAction(0.5f));
 		bar.addComponent(move_left);
-	
+
 		bar.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/bar.png")));
 		entityManager.addEntity(stateID, bar);
 
@@ -212,7 +289,6 @@ public class CEState extends BasicGameState implements GameParameters {
 
 		graphic.setColor(new Color(255, 255, 255));
 		Shape s = new Rectangle(100, 70, 500, 650);
-//		graphic.fillRect(s.getX(), s.getY(), s.getWidth(), s.getHeight());
 		graphic.draw(s);
 	}
 

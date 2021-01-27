@@ -7,8 +7,10 @@ import java.util.Set;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
+import eea.engine.action.basicactions.MoveDownAction;
 import eea.engine.component.render.ImageRenderComponent;
 import eea.engine.entity.Entity;
+import eea.engine.event.basicevents.LoopEvent;
 import de.tud.jsf.scrabble.constants.GameParameters;
 
 
@@ -45,6 +47,13 @@ public class Letter extends Entity implements GameParameters{
 	
 	public char getValue() {
 		return value;
+	}
+	
+	public void drop() {
+		this.setVisible(true);
+		LoopEvent fall = new LoopEvent();
+		fall.addAction(new MoveDownAction(0.1f));
+		this.addComponent(fall);
 	}
 	
 	public ImageRenderComponent addImageComponent() {
