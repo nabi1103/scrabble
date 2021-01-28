@@ -1,6 +1,7 @@
 package de.tud.jsf.scrabble.ui.states;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,7 +27,6 @@ import eea.engine.entity.StateBasedEntityManager;
 import eea.engine.event.ANDEvent;
 import eea.engine.event.basicevents.MouseClickedEvent;
 import eea.engine.event.basicevents.MouseEnteredEvent;
-
 import de.tud.jsf.scrabble.constants.GameParameters;
 import de.tud.jsf.scrabble.ui.entity.Board;
 import de.tud.jsf.scrabble.ui.entity.Tile;
@@ -49,7 +49,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	private static ArrayList<Word> current_words = new ArrayList<>();
 
 	// Player data
-	private Player[] players;
+	static Player[] players;
 	private int numberOfPlayers = 4;
 	private Player currentPlayer;
 
@@ -92,6 +92,13 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	private char[][] last_player_turn_begin_char_grid = new char[BOARDSIZE][BOARDSIZE];
 
 	private static boolean new_game = true;
+	
+	// Trade button
+	Vector2f trade_pos = new Vector2f(880, 180);
+	private DialogueButton trade = new DialogueButton("trade_button", trade_pos, "trade");
+	
+	private ArrayList<String> traded_letter = new ArrayList<String>();
+	private boolean trading = false; // If currently trading -> can't put new tiles to the board
 
 	GameplayState(int sid) {
 		this.stateID = sid;
@@ -108,7 +115,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	}
 
 	public void initNewGame() throws SlickException {
-		// Create new BACKGROUND entity & add to manager
+		// Initialize background
 		Entity background = new Entity("background");
 		background.setPosition(new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
 		background.addComponent(new ImageRenderComponent(new Image("assets/background.png")));
@@ -120,8 +127,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 				moveLetterToBoardTile(tiles[i][j]);
 			}
 		}
-		// Init player
-
+		// Initialize player
 		players = new Player[numberOfPlayers];
 		for (int i = 0; i < numberOfPlayers; i++) {
 			players[i] = new Player("" + (i + 1), i);
@@ -133,7 +139,6 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 		// Initialize letters
 		bag_of_letters = initLetter();
-
 		for (Player p : players) {
 			for (int i = 0; i < 7; i++) {
 				String to_add = bag_of_letters.get(new Random().nextInt(bag_of_letters.size()));
@@ -141,67 +146,73 @@ public class GameplayState extends BasicGameState implements GameParameters {
 				bag_of_letters.remove(to_add);
 			}
 		}
+		
+		// Initialize trade zone
+		Entity trade_zone = new Entity("trade_zone");
+		trade_zone.setPosition(new Vector2f (825, 600));
+		trade_zone.setScale(0.5f);
+		trade_zone.addComponent(new ImageRenderComponent(new Image(DBOX)));
+		moveLetterToTradeZone(trade_zone);
+		entityManager.addEntity(stateID, trade_zone);
 
-		// Interactive buttons
-
+		// Initialize buttons
 		// Play button
-		Vector2f play_pos = new Vector2f(750, 120);
+		Vector2f play_pos = new Vector2f(770, 120);
 		DialogueButton play = new DialogueButton("play_button", play_pos, "commit");
 		play.addImageComponent();
 		entityManager.addEntity(stateID, play);
 		triggerPlay(play);
 
 		// Recall button
-		Vector2f undo_pos = new Vector2f(860, 120);
+		Vector2f undo_pos = new Vector2f(880, 120);
 		DialogueButton undo = new DialogueButton("undo_button", undo_pos, "undo");
 		undo.addImageComponent();
 		entityManager.addEntity(stateID, undo);
 		triggerUndo(undo);
 
 		// Check button
-		Vector2f check_pos = new Vector2f(750, 180);
+		Vector2f check_pos = new Vector2f(770, 180);
 		DialogueButton check = new DialogueButton("check_button", check_pos, "check");
 		check.addImageComponent();
 		entityManager.addEntity(stateID, check);
 		triggerCheck(check);
 
-		// Switch game state (TEST only)
+		// Trade button
+		trade.addImageComponent();
+		entityManager.addEntity(stateID, trade);
+		triggerTrade(trade);
 
-		Entity ce_switch_test = new Entity("Quit");
-
-		ce_switch_test.setPosition(new Vector2f(800, 290));
-		ce_switch_test.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/grey_boxCheckmark.png")));
-
-		ANDEvent switch_to_ce_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
-		Action change_variable = new Action() {
-
+		// TEST button
+		
+		Vector2f test_pos = new Vector2f(900, 240);
+		DialogueButton test = new DialogueButton("test_button", test_pos, "undo");
+		test.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/grey_boxCross.png")));
+		entityManager.addEntity(stateID, test);
+		triggerUndo(undo);
+		
+		ANDEvent test_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+		test_event.addAction(new Action() {
 			@Override
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
-				CEState.play_clickable = true;
+				for (Player p : players) {
+					System.out.println("Player " + p.getName() + "("+  p.getID() + ")" + ": " + p.getScore());
+					System.out.println(p.getLetters());
+					System.out.println("--------------------------------");
+				}
+				System.out.println("++++++++++++++++++++++++++++++++++++++");
 			}
-		};
-		Action new_Game_Action = new ChangeStateAction(Launch.CE_STATE);
-		switch_to_ce_event.addAction(change_variable);
-		switch_to_ce_event.addAction(new_Game_Action);
-		ce_switch_test.addComponent(switch_to_ce_event);
+		});
+		test.addComponent(test_event);
+		entityManager.addEntity(stateID, test);
 
-		entityManager.addEntity(stateID, ce_switch_test);
-
-		// Next turn button
-
-		// TODO: Challenge Button
-		// TODO: Exchange Button
 		// TODO: Show letters Button
 
 		// Always the last thing to do
-
 		turn_begin_state.clear();
-
 		for (Entity e : entityManager.getEntitiesByState(stateID)) {
 			turn_begin_state.add(e);
 			last_player_turn_begin_state.add(e);
 		}
-
 		renderPlayerLetter(currentPlayer);
 		new_game = false;
 	}
@@ -310,7 +321,6 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	}
 
 	// CHECK BUTTON
-
 	public void triggerCheck(DialogueButton button) {
 		ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
 		Action clickOnButton = new Action() {
@@ -375,7 +385,29 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		clickEvent.addAction(clickOnButton);
 		button.addComponent(clickEvent);
 	}
-
+	
+	// TRADE BUTTON
+	public void triggerTrade(DialogueButton button) {
+		Action new_Game_Action = new ChangeStateAction(Launch.CE_STATE);
+		ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+		button.removeComponent(clickEvent);
+		Action clickOnButton = new Action() {
+			@Override
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				if(traded_letter.isEmpty()) {
+					warning_text = "No letters to trade. Add at least one letter to trade zone.";
+					clickEvent.removeAction(new_Game_Action);
+					button.removeComponent(clickEvent);
+					return;
+				}
+				trade();
+			}
+		};
+		clickEvent.addAction(clickOnButton);
+		clickEvent.addAction(new_Game_Action);
+		button.addComponent(clickEvent);
+	}
+	
 	// Moving letters function
 	public void moveLetterToBoardLetter(Letter l) {
 		ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
@@ -404,6 +436,8 @@ public class GameplayState extends BasicGameState implements GameParameters {
 				if (!clickable)
 					return;
 				if (!move_letter)
+					return;
+				if(trading)
 					return;
 				if (getEntityByPos(t.getPosition()).size() > 1)
 					return; // Placing letter on a bereits gelegte Tile will not work
@@ -491,9 +525,38 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		clickEvent.addAction(clickOnLetter);
 		t.addComponent(clickEvent);
 	}
-
-	// Help functions
-
+	
+	public void moveLetterToTradeZone(Entity z) {
+		ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+		Action clickOnLetter = new Action() {
+			@Override
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				if (!clickable)
+					return;
+				if (!move_letter)
+					return;
+				if (newTilesThisTurn.size() > 0) {
+					warning_text = "Can't trade if tiles are played in this turn, has to UNDO first";
+					return;
+				}
+				
+				triggerTrade(trade);
+				
+				traded_letter.add(tmp_letter.getID());
+				currentPlayer.removeLetter(tmp_letter.getID());
+				entityManager.removeEntity(stateID, entityManager.getEntity(stateID, tmp_letter.getID()));
+				renderTradedLetter();
+				
+				move_letter = false;
+				tmp_letter = null;
+				trading = true;
+			}
+		};
+		clickEvent.addAction(clickOnLetter);
+		z.addComponent(clickEvent);
+	}
+	
+	// Misc functions
 	public ArrayList<Entity> getEntityByPos(Vector2f pos) {
 		ArrayList<Entity> result = new ArrayList<>();
 
@@ -746,6 +809,13 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 	public void renderPlayerLetter(Player p) {
 		current_display_letters.clear();
+		p.getLetters().sort(new Comparator<String>() {
+			ArrayList<Character> order = new ArrayList<Character>(Arrays.asList('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '_'));
+			@Override
+			public int compare(String arg0, String arg1) {
+				return order.indexOf(arg0.charAt(0)) - order.indexOf(arg1.charAt(0));
+			}});
+		
 		for (int i = 0; i < p.getLetters().size(); i++) {
 			Vector2f tv;
 			if (i < 4) {
@@ -758,10 +828,26 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			entityManager.addEntity(stateID, l);
 			current_display_letters.add(l);
 		}
-//		current_display_letters.forEach((l) -> {System.out.println(l.getID());});
-//		System.out.println("____________");
-		// entityManager.getEntitiesByState(stateID).forEach((e) ->
-		// {System.out.println(e.getID());});
+	}
+	
+	public void renderTradedLetter() {
+		traded_letter.sort(new Comparator<String>() {
+			ArrayList<Character> order = new ArrayList<Character>(Arrays.asList('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '_'));
+			@Override
+			public int compare(String arg0, String arg1) {
+				return order.indexOf(arg0.charAt(0)) - order.indexOf(arg1.charAt(0));
+			}});
+		
+		for (int i = 0; i < traded_letter.size(); i++) {
+			Vector2f tv;
+			if (i < 4) {
+				tv = new Vector2f(750 + 50 * i, 575);
+			} else {
+				tv = new Vector2f(920 - 50 * (7 - i), 625);
+			}
+			Letter l = new Letter(traded_letter.get(i), traded_letter.get(i).charAt(0), tv);
+			entityManager.addEntity(stateID, l);
+		}
 	}
 
 	public void nextTurn() {
@@ -783,6 +869,8 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		used_letters.forEach((l) -> {
 			currentPlayer.removeLetter(l.getID());
 		});
+		
+		traded_letter.clear();
 
 		// Parameter for check
 		checkable = true;
@@ -854,6 +942,12 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 		current_words.clear();
 		used_letters.clear();
+		// Undo trade parameters
+		trading = false;
+		traded_letter.forEach((l) -> {
+			currentPlayer.addLetter(l);
+		}); // Change the order of letters but overall still correct
+		traded_letter.clear();
 
 		newTilesThisTurn.clear();
 		warning_text = "";
@@ -871,7 +965,18 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		renderPlayerLetter(currentPlayer);
 		clickable = true;
 	}
-
+	
+	public void trade() {
+		CEState.play_clickable = true;
+		CEState.limit = traded_letter.size();
+		CEState.current_player = currentPlayer.getID();
+		
+		traded_letter.forEach((l) -> {
+			bag_of_letters.add(l);
+		});
+		nextTurn();
+	}
+	
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics graphic) throws SlickException {
 		entityManager.renderEntities(container, game, graphic);

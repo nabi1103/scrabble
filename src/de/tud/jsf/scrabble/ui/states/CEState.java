@@ -44,12 +44,13 @@ public class CEState extends BasicGameState implements GameParameters {
 	private Entity left_bound, right_bound, bar;
 	private ArrayList<Entity> bag_of_letters_ce = new ArrayList<Entity>();
 
-	private ArrayList<String> taken_letters = new ArrayList<String>();
+	private ArrayList<String> taken_letter = new ArrayList<String>();
 
 	private Timer timer;
 
 	static boolean play_clickable = false;
-	static int limit = 7;
+	static int limit;
+	static int current_player;
 
 	CEState(int sid) {
 		this.stateID = sid;
@@ -112,7 +113,7 @@ public class CEState extends BasicGameState implements GameParameters {
 						Entity l = bag_of_letters_ce.get(new Random().nextInt(bag_of_letters_ce.size()));
 						bag_of_letters_ce.remove(l);
 						dropping(l);
-						if (taken_letters.size() >= limit || bag_of_letters_ce.size() <= 0) {
+						if (taken_letter.size() >= limit || bag_of_letters_ce.size() <= 0) {
 							stopCEGame();
 						}
 					}
@@ -161,7 +162,7 @@ public class CEState extends BasicGameState implements GameParameters {
 			@Override
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
 				if (l.getPosition().getY() > arg0.getHeight() || l.getPosition().getY() < 0
-						|| taken_letters.size() == limit) {
+						|| taken_letter.size() == limit) {
 					l.setPosition(start_pos);
 					bag_of_letters_ce.add(l);
 					l.removeComponent(loop);
@@ -202,7 +203,7 @@ public class CEState extends BasicGameState implements GameParameters {
 			@Override
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
 				if (l.collides(bar)) {
-					taken_letters.add(l.getID());
+					taken_letter.add(l.getID());
 					bag_of_letters_ce.remove(l);
 					entityManager.removeEntity(stateID, l);
 					renderTakenLetter();
@@ -216,21 +217,32 @@ public class CEState extends BasicGameState implements GameParameters {
 	}
 
 	public void renderTakenLetter() {
-		for (int i = 0; i < taken_letters.size(); i++) {
+		for (int i = 0; i < taken_letter.size(); i++) {
 			Vector2f tv;
 			if (i < 4) {
 				tv = new Vector2f(710 + 50 * i, 400);
 			} else {
 				tv = new Vector2f(880 - 50 * (7 - i), 450);
 			}
-			Letter l = new Letter(taken_letters.get(i), taken_letters.get(i).charAt(0), tv);
+			Letter l = new Letter(taken_letter.get(i), taken_letter.get(i).charAt(0), tv);
 			entityManager.addEntity(stateID, l);
 		}
 	}
 
 	public void stopCEGame() {
-		System.out.println("CE game stopped");
+		System.out.println("CE game stopped. Traded letters: ");
+		taken_letter.forEach((l) -> {
+			System.out.print(l + ", ");
+		});
+		System.out.println("Player to watch: " + current_player);
 		timer.cancel();
+		for(int i = 0; i < 4; i++) {
+			if(GameplayState.players[i].getID() == current_player) {
+				for(int j = 0; j < taken_letter.size(); j++) {
+					GameplayState.players[i].addLetter(taken_letter.get(j));
+				}
+			}
+		}
 	}
 
 	public Entity setLeftBound() {

@@ -74,6 +74,8 @@ public interface GameParameters {
 	public static final String COMMIT_BUTTON = "assets/scrabble/ui/commit_button.png";
 	public static final String UNDO_BUTTON = "assets/scrabble/ui/undo_button.png";
 	public static final String CHECK_BUTTON = "assets/scrabble/ui/check_button.png";
+	public static final String TRADE_BUTTON = "assets/scrabble/ui/trade_button.png";
+
 	
 	public static final float DBOX_WIDTH = 400;
 	public static final float DBOX_HEIGHT = 200;

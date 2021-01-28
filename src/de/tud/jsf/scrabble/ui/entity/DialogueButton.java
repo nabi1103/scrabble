@@ -93,6 +93,16 @@ public class DialogueButton extends Entity implements GameParameters{
 			}
 			break;
 			
+		case "trade":
+			try {
+				image = new ImageRenderComponent(new Image(TRADE_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + TRADE_BUTTON);
+				e.printStackTrace();
+			}
+			break;
+			
 		}
 		
 		
