@@ -74,6 +74,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 	static ArrayList<String> bag_of_letters = new ArrayList<String>();
 	private ArrayList<Letter> current_display_letters = new ArrayList<Letter>();
+	private ArrayList<Letter> current_display_traded_letters = new ArrayList<Letter>();
 	private ArrayList<Letter> used_letters = new ArrayList<Letter>();
 
 	// Undo button
@@ -199,6 +200,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 					System.out.println(p.getLetters());
 					System.out.println("--------------------------------");
 				}
+				System.out.println(entityManager.getEntitiesByState(stateID).size());
 				System.out.println("++++++++++++++++++++++++++++++++++++++");
 			}
 		});
@@ -225,6 +227,11 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
 				// Check if the rules for the first turn is not broken; if that is the case, the
 				// play is invalid and the player must redo their moves
+				if (trading) {
+					warning_text = "You can not commit while there are letters in the trade zone";
+					return;
+				}
+				
 				if (turn == 0 && getEntityByPos(new Vector2f(380, 380)).size() < 2) {
 					warning_text = "The first turn must use the centermost tile!";
 					return;
@@ -238,7 +245,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 						}
 					}
 				}
-
+				
 				// Check if all the new tiles placed are in the same horizontal/vertical line
 				int currentX = -1; // Init value = -1
 				int currentY = -1;
@@ -831,6 +838,10 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	}
 	
 	public void renderTradedLetter() {
+		current_display_traded_letters.forEach((l) -> {
+			entityManager.removeEntity(stateID, l);
+		});
+		current_display_traded_letters.clear();
 		traded_letter.sort(new Comparator<String>() {
 			ArrayList<Character> order = new ArrayList<Character>(Arrays.asList('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '_'));
 			@Override
@@ -846,6 +857,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 				tv = new Vector2f(920 - 50 * (7 - i), 625);
 			}
 			Letter l = new Letter(traded_letter.get(i), traded_letter.get(i).charAt(0), tv);
+			current_display_traded_letters.add(l);
 			entityManager.addEntity(stateID, l);
 		}
 	}
@@ -870,6 +882,8 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			currentPlayer.removeLetter(l.getID());
 		});
 		
+		// Trading
+		trading = false;
 		traded_letter.clear();
 
 		// Parameter for check
@@ -880,6 +894,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		current_display_letters.forEach((l) -> {
 			entityManager.removeEntity(stateID, l);
 		});
+		
 
 		last_player = currentPlayer;
 		current_words.forEach((w) -> {
@@ -899,7 +914,8 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		currentPlayer = players[(currentPlayer.getID() + 1) % numberOfPlayers];
 		displayPlayerID = currentPlayer.getName();
 		displayPlayerScore = currentPlayer.getScore();
-
+		
+		// Add letters to next player if he doesn't have enough
 		while (currentPlayer.getLetters().size() < 7) {
 			String to_add = bag_of_letters.get(new Random().nextInt(bag_of_letters.size()));
 			currentPlayer.addLetter(to_add);
@@ -925,7 +941,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			}
 		}
 		renderPlayerLetter(currentPlayer);
-		System.out.println("Current Turn: " + turn);
+		renderTradedLetter();
 //		}
 	}
 
@@ -974,6 +990,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		traded_letter.forEach((l) -> {
 			bag_of_letters.add(l);
 		});
+		
 		nextTurn();
 	}
 	

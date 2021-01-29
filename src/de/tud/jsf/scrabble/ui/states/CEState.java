@@ -97,12 +97,18 @@ public class CEState extends BasicGameState implements GameParameters {
 					return;
 
 				play_clickable = false;
+				
+				ArrayList<Entity> redundant = new ArrayList<Entity>();
 
 				bag_of_letters_ce.forEach((letter) -> {
 					if (!GameplayState.bag_of_letters.contains(letter.getID())) {
-						bag_of_letters_ce.remove(letter);
-						entityManager.removeEntity(stateID, letter);
+						redundant.add(letter);
 					}
+				});
+				
+				redundant.forEach((letter) -> {
+					bag_of_letters_ce.remove(letter);
+					entityManager.removeEntity(stateID, letter);
 				});
 
 				timer = new Timer();
@@ -236,6 +242,7 @@ public class CEState extends BasicGameState implements GameParameters {
 		});
 		System.out.println("Player to watch: " + current_player);
 		timer.cancel();
+		play_clickable = false;
 		for(int i = 0; i < 4; i++) {
 			if(GameplayState.players[i].getID() == current_player) {
 				for(int j = 0; j < taken_letter.size(); j++) {
