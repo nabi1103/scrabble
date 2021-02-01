@@ -47,6 +47,7 @@ public class CEState extends BasicGameState implements GameParameters {
 	private ArrayList<String> taken_letter = new ArrayList<String>();
 
 	private Timer timer;
+	private ArrayList<Entity> current_display_taken_letter = new ArrayList<Entity>();
 
 	static boolean play_clickable = false;
 	static int limit;
@@ -64,7 +65,7 @@ public class CEState extends BasicGameState implements GameParameters {
 			renderDroppableLetter(letter);
 		});
 
-		// Return to Gameplay State (testing only)
+		// Return to Gameplay State
 		Entity return_button = new Entity("return");
 
 		return_button.setPosition(new Vector2f(850, 220));
@@ -76,7 +77,10 @@ public class CEState extends BasicGameState implements GameParameters {
 			@Override
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
 				timer.cancel();
-//				bag_of_letters_ce.clear();
+				taken_letter.clear();
+				current_display_taken_letter.forEach((l) -> {
+					entityManager.removeEntity(stateID, l);
+				});
 			}
 		});
 		return_to_gameplay_event.addAction(new_Game_Action);
@@ -231,6 +235,7 @@ public class CEState extends BasicGameState implements GameParameters {
 				tv = new Vector2f(880 - 50 * (7 - i), 450);
 			}
 			Letter l = new Letter(taken_letter.get(i), taken_letter.get(i).charAt(0), tv);
+			current_display_taken_letter .add(l);
 			entityManager.addEntity(stateID, l);
 		}
 	}
@@ -250,6 +255,7 @@ public class CEState extends BasicGameState implements GameParameters {
 				}
 			}
 		}
+	
 	}
 
 	public Entity setLeftBound() {
