@@ -48,11 +48,18 @@ public class CEState extends BasicGameState implements GameParameters {
 
 	private Timer timer;
 	private ArrayList<Entity> current_display_taken_letter = new ArrayList<Entity>();
-
+	
+	// Button
+	private boolean return_clickable = false;
 	static boolean play_clickable = false;
+	
+	// Gameplay
 	static int limit;
 	static int current_player;
-
+	
+	// Warning text
+	static String warning_text = "";
+	
 	CEState(int sid) {
 		this.stateID = sid;
 		entityManager = StateBasedEntityManager.getInstance();
@@ -60,38 +67,21 @@ public class CEState extends BasicGameState implements GameParameters {
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
+		Entity background = new Entity("background");
+		background.setPosition(new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
+		background.addComponent(new ImageRenderComponent(new Image(BACKGROUND)));
+		entityManager.addEntity(stateID, background);
+
 		// Hanging letters
 		GameplayState.bag_of_letters.forEach((letter) -> {
 			renderDroppableLetter(letter);
 		});
 
-		// Return to Gameplay State
-		Entity return_button = new Entity("return");
-
-		return_button.setPosition(new Vector2f(850, 220));
-		return_button.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/grey_boxCross.png")));
-
-		ANDEvent return_to_gameplay_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
-		Action new_Game_Action = new ChangeStateAction(Launch.GAMEPLAY_STATE);
-		return_to_gameplay_event.addAction(new Action() {
-			@Override
-			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
-				timer.cancel();
-				taken_letter.clear();
-				current_display_taken_letter.forEach((l) -> {
-					entityManager.removeEntity(stateID, l);
-				});
-			}
-		});
-		return_to_gameplay_event.addAction(new_Game_Action);
-		return_button.addComponent(return_to_gameplay_event);
-		entityManager.addEntity(stateID, return_button);
-
 		// Start button
 		Entity play_button = new Entity("test_count");
 
-		play_button.setPosition(new Vector2f(800, 220));
-		play_button.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/grey_boxCheckmark.png")));
+		play_button.setPosition(new Vector2f(770, 120));
+		play_button.addComponent(new ImageRenderComponent(new Image(START_BUTTON)));
 
 		ANDEvent play_start = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
 		Action click_action = new Action() {
@@ -101,7 +91,8 @@ public class CEState extends BasicGameState implements GameParameters {
 					return;
 
 				play_clickable = false;
-				
+				warning_text = "";
+
 				ArrayList<Entity> redundant = new ArrayList<Entity>();
 
 				bag_of_letters_ce.forEach((letter) -> {
@@ -109,7 +100,7 @@ public class CEState extends BasicGameState implements GameParameters {
 						redundant.add(letter);
 					}
 				});
-				
+
 				redundant.forEach((letter) -> {
 					bag_of_letters_ce.remove(letter);
 					entityManager.removeEntity(stateID, letter);
@@ -125,6 +116,7 @@ public class CEState extends BasicGameState implements GameParameters {
 						dropping(l);
 						if (taken_letter.size() >= limit || bag_of_letters_ce.size() <= 0) {
 							stopCEGame();
+							warning_text = "Minigame complete. Click the RETURN button to return to the game!!!";
 						}
 					}
 				}, 0, 1000);
@@ -135,6 +127,30 @@ public class CEState extends BasicGameState implements GameParameters {
 		play_button.addComponent(play_start);
 
 		entityManager.addEntity(stateID, play_button);
+
+		// Return to Gameplay State
+		Entity return_button = new Entity("return");
+
+		return_button.setPosition(new Vector2f(880, 120));
+		return_button.addComponent(new ImageRenderComponent(new Image(RETURN_BUTTON)));
+
+		ANDEvent return_to_gameplay_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+		Action new_Game_Action = new ChangeStateAction(Launch.GAMEPLAY_STATE);
+		return_to_gameplay_event.addAction(new Action() {
+			@Override
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				if (!return_clickable) return;
+				taken_letter.clear();
+				current_display_taken_letter.forEach((l) -> {
+					entityManager.removeEntity(stateID, l);
+				});
+				warning_text = "";
+				return_clickable = false;
+			}
+		});
+		return_to_gameplay_event.addAction(new_Game_Action);
+		return_button.addComponent(return_to_gameplay_event);
+		entityManager.addEntity(stateID, return_button);
 
 		// Border
 		left_bound = setLeftBound();
@@ -235,7 +251,7 @@ public class CEState extends BasicGameState implements GameParameters {
 				tv = new Vector2f(880 - 50 * (7 - i), 450);
 			}
 			Letter l = new Letter(taken_letter.get(i), taken_letter.get(i).charAt(0), tv);
-			current_display_taken_letter .add(l);
+			current_display_taken_letter.add(l);
 			entityManager.addEntity(stateID, l);
 		}
 	}
@@ -248,14 +264,15 @@ public class CEState extends BasicGameState implements GameParameters {
 		System.out.println("Player to watch: " + current_player);
 		timer.cancel();
 		play_clickable = false;
-		for(int i = 0; i < 4; i++) {
-			if(GameplayState.players[i].getID() == current_player) {
-				for(int j = 0; j < taken_letter.size(); j++) {
+		return_clickable = true;
+		for (int i = 0; i < 4; i++) {
+			if (GameplayState.players[i].getID() == current_player) {
+				for (int j = 0; j < taken_letter.size(); j++) {
 					GameplayState.players[i].addLetter(taken_letter.get(j));
 				}
 			}
 		}
-	
+
 	}
 
 	public Entity setLeftBound() {
@@ -315,6 +332,9 @@ public class CEState extends BasicGameState implements GameParameters {
 		graphic.setColor(new Color(255, 255, 255));
 		Shape s = new Rectangle(100, 70, 500, 650);
 		graphic.draw(s);
+		
+		graphic.setColor(new Color(255, 0, 0));
+		graphic.drawString(warning_text, 90, 10);
 	}
 
 	@Override

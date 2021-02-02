@@ -127,7 +127,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		// Initialize background
 		Entity background = new Entity("background");
 		background.setPosition(new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
-		background.addComponent(new ImageRenderComponent(new Image("assets/background.png")));
+		background.addComponent(new ImageRenderComponent(new Image(BACKGROUND)));
 		entityManager.addEntity(stateID, background);
 
 		for (int i = 0; i < BOARDSIZE; i++) {
@@ -171,7 +171,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		entityManager.addEntity(stateID, play);
 		triggerPlay(play);
 
-		// Recall button
+		// Undo button
 		Vector2f undo_pos = new Vector2f(880, 120);
 		DialogueButton undo = new DialogueButton("undo_button", undo_pos, "undo");
 		undo.addImageComponent();
@@ -514,11 +514,20 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 				used_letters.add(new_letter);
 				char value = new_letter.getValue();
+				Character return_value = '\u0000';
 				
 				if(value == '_') {
 					Character[] options = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
 							'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
-					value = (Character)JOptionPane.showInputDialog(null, "Choose a value for the wildcard letter", " ", JOptionPane.QUESTION_MESSAGE, null, options, options[2]);
+					return_value = (Character)JOptionPane.showInputDialog(null, "Choose a value for the wildcard letter", " ", JOptionPane.QUESTION_MESSAGE, null, options, options[2]);
+					
+					if (return_value == null) {
+						move_letter = false;
+						tmp_letter = null;
+						return;
+					} else {
+						value = return_value;
+					}
 				}
 				
 				char_grid[x][y] = value;
@@ -1006,6 +1015,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		CEState.play_clickable = true;
 		CEState.limit = traded_letter.size();
 		CEState.current_player = currentPlayer.getID();
+		CEState.warning_text = "Click the START button to begin the minigame. Number of letters to get: " + traded_letter.size();
 
 		traded_letter.forEach((l) -> {
 			bag_of_letters.add(l);
@@ -1023,10 +1033,10 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		graphic.drawString("Current Turn: " + (turn + 1), 750, 50);
 
 		// Right UI
-		int word_spacing = 20;
-		for (int i = 0; i < current_words.size(); i++) {
-			graphic.drawString(current_words.get(i).getValue(), 700, 280 + i * word_spacing);
-		}
+//		int word_spacing = 20;
+//		for (int i = 0; i < current_words.size(); i++) {
+//			graphic.drawString(current_words.get(i).getValue(), 700, 280 + i * word_spacing);
+//		}
 
 		player_0_name = players[0].getName();
 		player_0_score = players[0].getScore();
