@@ -7,7 +7,7 @@ import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
 import de.tud.jsf.scrabble.constants.GameParameters;
-
+import de.tud.jsf.scrabble.ui.states.Launch;
 import eea.engine.action.Action;
 import eea.engine.component.Component;
 import eea.engine.component.render.ImageRenderComponent;
@@ -41,6 +41,7 @@ public class Tile extends Entity implements GameParameters {
 		
 		this.setPosition(pos);
 		this.setScale(TILE_SCALE_FACTOR);
+		this.setSize(new Vector2f(50/8,50/8));
 		
 		this.setLetterMultiplier();
 		this.setWordMultiplier();
@@ -111,7 +112,7 @@ public class Tile extends Entity implements GameParameters {
 	
 	public ImageRenderComponent addImageComponent() {
 		ImageRenderComponent image = null;
-		
+		if (!Launch.debug)
 		switch (this.getType()) {
 		case "blank":
 			try {

@@ -12,6 +12,7 @@ import eea.engine.component.render.ImageRenderComponent;
 import eea.engine.entity.Entity;
 import eea.engine.event.basicevents.LoopEvent;
 import de.tud.jsf.scrabble.constants.GameParameters;
+import de.tud.jsf.scrabble.ui.states.Launch;
 
 
 public class Letter extends Entity implements GameParameters{
@@ -36,9 +37,10 @@ public class Letter extends Entity implements GameParameters{
 		this.id = entityID;
 		
 		this.setPosition(pos);
-		this.addImageComponent();
+		if (!Launch.debug)this.addImageComponent();
 		this.setScale(LETTER_SCALE_FACTOR);
 		this.setVisible(true);
+		this.setSize(new Vector2f(256/15,256/15));
 	}
 	
 	public Vector2f getPosition() {

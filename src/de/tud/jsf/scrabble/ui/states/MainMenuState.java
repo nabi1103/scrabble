@@ -38,18 +38,18 @@ public class MainMenuState extends BasicGameState implements GameParameters{
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
     	Entity background = new Entity("menu");	
     	background.setPosition(new Vector2f(480,360));
-    	background.addComponent(new ImageRenderComponent(new Image(MAINMENU)));
+    	if (!Launch.debug)background.addComponent(new ImageRenderComponent(new Image(MAINMENU)));
     	entityManager.addEntity(stateID, background);
     	
-    	String new_Game = "New Game";
-    	Entity new_Game_Entity = new Entity(new_Game);
+    	Entity new_Game_Entity = new Entity("newgame");
     	
     	new_Game_Entity.setPosition(new Vector2f(145, 190));
     	new_Game_Entity.setScale(0.3f);
-    	new_Game_Entity.addComponent(new ImageRenderComponent(new Image(DBOX)));
+    	new_Game_Entity.setSize(new Vector2f(400/3,200/3));
+    	if (!Launch.debug)new_Game_Entity.addComponent(new ImageRenderComponent(new Image(DBOX)));
     	
     	ANDEvent mainEvents = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
-    	Action new_Game_Action = new ChangeStateAction(Launch.GAMEPLAY_STATE);
+    	Action new_Game_Action = new ChangeStateAction(Launch.PLAYER_SELECT_STATE);
     	mainEvents.addAction(new_Game_Action);
     	new_Game_Entity.addComponent(mainEvents);
     	
@@ -59,7 +59,8 @@ public class MainMenuState extends BasicGameState implements GameParameters{
     	
     	quit_Entity.setPosition(new Vector2f(145, 290));
     	quit_Entity.setScale(0.3f);
-    	quit_Entity.addComponent(new ImageRenderComponent(new Image(DBOX)));
+    	quit_Entity.setSize(new Vector2f(400/3,200/3));
+    	if (!Launch.debug)quit_Entity.addComponent(new ImageRenderComponent(new Image(DBOX)));
     	
     	ANDEvent mainEvents_q = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
     	Action quit_Action = new QuitAction();
@@ -67,6 +68,18 @@ public class MainMenuState extends BasicGameState implements GameParameters{
     	quit_Entity.addComponent(mainEvents_q);
     	
     	entityManager.addEntity(this.stateID, quit_Entity);
+    	Entity highscore = new Entity("highscore");
+    	highscore.setPosition(new Vector2f(145, 390));
+    	highscore.setScale(0.3f);
+    	highscore.setSize(new Vector2f(400/3,200/3));
+    	if (!Launch.debug) highscore.addComponent(new ImageRenderComponent(new Image(DBOX)));
+    	
+    	ANDEvent highscoreEvent= new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+    	Action goToHighscore = new ChangeStateAction(Launch.HIGHSCORE_STATE);
+    	highscoreEvent.addAction(goToHighscore);
+    	highscore.addComponent(highscoreEvent);
+    	
+    	entityManager.addEntity(stateID, highscore);
 	}
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics graphic) throws SlickException {
@@ -75,8 +88,9 @@ public class MainMenuState extends BasicGameState implements GameParameters{
 		
 		int counter = 0;
 		
-		graphic.drawString("New Game", 110, start_Position+counter*distance); counter++;
+		graphic.drawString("New game", 110, start_Position+counter*distance); counter++;
 		graphic.drawString("Quit", 110, start_Position+counter*distance); counter++;
+		graphic.drawString("Highscore", 110, start_Position+counter*distance); counter++;
 		
 	}
 	@Override

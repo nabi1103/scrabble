@@ -34,6 +34,7 @@ import eea.engine.event.basicevents.MouseClickedEvent;
 import eea.engine.event.basicevents.MouseEnteredEvent;
 
 import de.tud.jsf.scrabble.constants.GameParameters;
+import de.tud.jsf.scrabble.model.player.Players;
 import de.tud.jsf.scrabble.ui.entity.Letter;
 
 public class CEState extends BasicGameState implements GameParameters {
@@ -55,7 +56,7 @@ public class CEState extends BasicGameState implements GameParameters {
 	
 	// Gameplay
 	static int limit;
-	static int current_player;
+	//static int current_player;
 	
 	// Warning text
 	static String warning_text = "";
@@ -246,9 +247,9 @@ public class CEState extends BasicGameState implements GameParameters {
 		for (int i = 0; i < taken_letter.size(); i++) {
 			Vector2f tv;
 			if (i < 4) {
-				tv = new Vector2f(710 + 50 * i, 400);
+				tv = new Vector2f(750 + 50 * i, 400);
 			} else {
-				tv = new Vector2f(880 - 50 * (7 - i), 450);
+				tv = new Vector2f(920 - 50 * (7 - i), 450);
 			}
 			Letter l = new Letter(taken_letter.get(i), taken_letter.get(i).charAt(0), tv);
 			current_display_taken_letter.add(l);
@@ -261,14 +262,14 @@ public class CEState extends BasicGameState implements GameParameters {
 		taken_letter.forEach((l) -> {
 			System.out.print(l + ", ");
 		});
-		System.out.println("Player to watch: " + current_player);
+		System.out.println("Player to watch: " + Players.currentPlayer.getID());
 		timer.cancel();
 		play_clickable = false;
 		return_clickable = true;
-		for (int i = 0; i < 4; i++) {
-			if (GameplayState.players[i].getID() == current_player) {
+		for (int i = 0; i < Players.getNumberOfPlayers(); i++) {
+			if (Players.getPlayers().get(i).getID() == Players.currentPlayer.getID()) {
 				for (int j = 0; j < taken_letter.size(); j++) {
-					GameplayState.players[i].addLetter(taken_letter.get(j));
+					Players.getPlayers().get(i).addLetter(taken_letter.get(j));
 				}
 			}
 		}

@@ -1,6 +1,7 @@
 package de.tud.jsf.scrabble.constants;
 
 public interface GameParameters {
+	
 	// Window Settings
 	public static final int WINDOW_WIDTH = 960;
 	public static final int WINDOW_HEIGHT = 720;
@@ -11,6 +12,11 @@ public interface GameParameters {
 	public static final int GAMEPLAY_STATE = 1;
 	public static final int CE_STATE = 2;
 	public static final int ABOUT_STATE = 3;
+	public static final int PLAYER_SELECT_STATE = 4;
+	public static final int HIGHSCORE_STATE = 5;
+	
+	// GameData
+	public static final int PLAYER_INVENTORY_SIZE = 7;
 	
 	// Board
 	public static final int BOARDSIZE = 15;
