@@ -41,7 +41,7 @@ public class Tile extends Entity implements GameParameters {
 		
 		this.setPosition(pos);
 		this.setScale(TILE_SCALE_FACTOR);
-		this.setSize(new Vector2f(50/8,50/8));
+		this.setSize(new Vector2f(TILE_WIDTH,TILE_HEIGHT));
 		
 		this.setLetterMultiplier();
 		this.setWordMultiplier();

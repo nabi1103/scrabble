@@ -25,7 +25,7 @@ public class DialogueButton extends Entity implements GameParameters{
 		this.setVisible(true);
 		this.setPosition(pos);
 		
-		this.setSize(new Vector2f(38, 36));
+		this.setSize(new Vector2f(100, 50));
 	}
 	
 	public void addDialogueBox(DialogueBox b) {

@@ -40,7 +40,7 @@ public class Letter extends Entity implements GameParameters{
 		if (!Launch.debug)this.addImageComponent();
 		this.setScale(LETTER_SCALE_FACTOR);
 		this.setVisible(true);
-		this.setSize(new Vector2f(256/15,256/15));
+		this.setSize(new Vector2f(256*LETTER_SCALE_FACTOR,256*LETTER_SCALE_FACTOR));
 	}
 	
 	public Vector2f getPosition() {

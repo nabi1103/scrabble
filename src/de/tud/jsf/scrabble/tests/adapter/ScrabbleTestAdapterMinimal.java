@@ -2,7 +2,9 @@ package de.tud.jsf.scrabble.tests.adapter;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
@@ -18,6 +20,7 @@ import de.tud.jsf.scrabble.ui.states.GameplayState;
 // REMOVE THESE IMPORTS
 
 import de.tud.jsf.scrabble.constants.GameParameters;
+import de.tud.jsf.scrabble.model.player.Player;
 import de.tud.jsf.scrabble.model.player.Players;
 
 public class ScrabbleTestAdapterMinimal {
@@ -109,39 +112,80 @@ public class ScrabbleTestAdapterMinimal {
 	}
 	
 	public int getCurrentNumberOfPlayers() {
+		// TODO
 		return Players.getNumberOfPlayers();
 	}
 	
 	public int getCurrentRound() {
+		// TODO
+		return ((GameplayState) scrabble.getState(getGameplayStateID())).getCurrentTurn();
+	}
+	
+	public String getNameOfCurrentPlayer() {
+		// TODO
+		return Players.currentPlayer.getName();
+	}
+	
+	public int getScoreOfCurrentPlayer() {
+		// TODO
+		return Players.currentPlayer.getScore();
+	}
+	
+	public Map<String,Integer> getPlayerData() {
+		HashMap<String,Integer> playerData = new HashMap<>();
+		for (Player p : Players.getPlayers()) {
+			playerData.put(p.getName() , p.getScore());
+		}
+		return playerData;
+	}
+	
+	public List<String> getPlayerNames() {
+		List<String> res = new ArrayList<String>();
+		for (Player p : Players.getPlayers()) {
+			res.add(p.getName());
+		}
+		return res;
+	}
+	
+	public String getNameOfNextPlayer() {
+		return Players.getPlayers().get((Players.currentPlayer.getID() + 1) % Players.getNumberOfPlayers()).getName();
+	}
+	
+	public int getScoreOfNextPlayer() {
+		return Players.getPlayers().get((Players.currentPlayer.getID() + 1) % Players.getNumberOfPlayers()).getScore();
+	}
+	
+	public int getPlayButtonX() {
+		List<Entity> entities = new ArrayList<Entity>();
+		if (scrabble != null) 
+			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
+		for (Entity e : entities) {
+			if (e.getID() == "play_button") {
+				return (int) e.getPosition().getX();
+			}
+		}
 		return -1;
 	}
 	
-	public int getScore() {
+	public int getPlayButtonY() {
+		List<Entity> entities = new ArrayList<Entity>();
+		if (scrabble != null) 
+			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
+		for (Entity e : entities) {
+			if (e.getID() == "play_button") {
+				return (int) e.getPosition().getY();
+			}
+		}
 		return -1;
 	}
+	
 	
 	public int getCurrentInventorySize() {
 		return Players.currentPlayer.getLetters().size();
 	}
-	
-	public Action getPlayAction() {
-		return null;
-	}
-	
-	public Action getUndoAction() {
-		return null;
-	}
-	
+		
 	public char[][] getBoard() {
 		return ((GameplayState) scrabble.getState(getGameplayStateID())).getCharGrid();
-	}
-	
-	public int getStarTileX() {
-		return -1;
-	}
-	
-	public int getStarTileY() {
-		return -1;
 	}
 	
 	public int getBoardY(int rows) {
@@ -191,8 +235,8 @@ public class ScrabbleTestAdapterMinimal {
 	}
 	
 	
-	public char getLetterValue(char letter) {
-		return 0;
+	public int getLetterScore(char letter) {
+		return ((GameplayState) scrabble.getState(getGameplayStateID())).getLetterScore(letter); 
 	}
 	
 	// PLAYER SELECT SECTION

@@ -119,6 +119,10 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		this.stateID = sid;
 		entityManager = StateBasedEntityManager.getInstance();
 	}
+
+	public int getCurrentTurn() {
+		return turn;
+	}
 	
 	public char[][] getCharGrid() {
 		return char_grid;
@@ -127,6 +131,8 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	public Tile[][] getTiles() {
 		return tiles;
 	}
+	
+	
 	
 	
 	public int getLastStateID() {
@@ -184,6 +190,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		Entity trade_zone = new Entity("trade_zone");
 		trade_zone.setPosition(new Vector2f(825, 600));
 		trade_zone.setScale(0.5f);
+		trade_zone.setSize(new Vector2f(DBOX_WIDTH * 0.5f , DBOX_HEIGHT*0.5f));
 		if (!Launch.debug)trade_zone.addComponent(new ImageRenderComponent(new Image(DBOX)));
 		moveLetterToTradeZone(trade_zone);
 		entityManager.addEntity(stateID, trade_zone);
@@ -221,6 +228,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		Vector2f test_pos = new Vector2f(900, 240);
 		DialogueButton test = new DialogueButton("test_button", test_pos, "undo");
 		if (!Launch.debug) test.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/grey_boxCross.png")));
+		test.setSize(new Vector2f(38,36));
 		entityManager.addEntity(stateID, test);
 		triggerUndo(undo);
 
@@ -292,6 +300,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
 				// Check if the rules for the first turn is not broken; if that is the case, the
 				// play is invalid and the player must redo their moves
+				if (!Launch.debug) System.out.println("Play is clicked");
 				if (trading) {
 					warning_text = "You can not commit while there are letters in the trade zone";
 					return;
