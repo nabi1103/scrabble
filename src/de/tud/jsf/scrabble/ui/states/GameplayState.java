@@ -101,6 +101,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	private ArrayList<Word> last_player_added_word = new ArrayList<>();
 	private ArrayList<Letter> last_player_used_letters = new ArrayList<Letter>();
 	private char[][] last_player_turn_begin_char_grid = new char[BOARDSIZE][BOARDSIZE];
+	private ArrayList<Tile> last_player_newTilesThisTurn = new ArrayList<>();
 
 	// State safe
 	private static boolean new_game = true;
@@ -410,6 +411,11 @@ public class GameplayState extends BasicGameState implements GameParameters {
 						for (Entity e : last_player_turn_begin_state) {
 							entityManager.addEntity(stateID, e);
 							turn_begin_state.add(e);
+						}
+						
+						for (Tile t : last_player_newTilesThisTurn) {
+							t.setLetterMultiplier();
+							t.setWordMultiplier();
 						}
 
 						for (int i = 0; i < BOARDSIZE; i++) {
@@ -1101,8 +1107,10 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 		// Clear store arrays
 		current_words.clear();
+		last_player_newTilesThisTurn.clear();
 		newTilesThisTurn.forEach((t) -> {
 			t.clearMultiplier();
+			last_player_newTilesThisTurn.add(t);
 		});
 		newTilesThisTurn.clear();
 
