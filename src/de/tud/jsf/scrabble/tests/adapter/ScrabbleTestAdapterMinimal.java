@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
 import de.tud.jsf.scrabble.ui.states.Launch;
@@ -181,22 +182,55 @@ public class ScrabbleTestAdapterMinimal {
 	
 	
 	public int getCurrentInventorySize() {
+		// TODO
 		return Players.currentPlayer.getLetters().size();
 	}
 		
 	public char[][] getBoard() {
+		// TODO
 		return ((GameplayState) scrabble.getState(getGameplayStateID())).getCharGrid();
 	}
 	
-	public int getBoardY(int rows) {
+	public Vector2f getFieldPosition(int rows, int column) {
+		return ((GameplayState) scrabble.getState(getGameplayStateID())).getTiles()[rows-1][column-1].getPosition();
+	}
+	
+	/*public int getBoardY(int rows) {
 		return (int) ((GameplayState) scrabble.getState(getGameplayStateID())).getTiles()[rows-1][0].getPosition().getY();
 	}
 	
 	public int getBoardX(int column) {
 		return (int) ((GameplayState) scrabble.getState(getGameplayStateID())).getTiles()[0][column-1].getPosition().getX();
+	}*/
+	
+	public List<Vector2f> getLettersInInventoryPosition() {
+		List<Entity> entities = new ArrayList<Entity>();
+		List<Vector2f> res = new ArrayList<Vector2f>();
+		if (scrabble != null) 
+			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
+		for (Entity e : entities) {
+			if (e instanceof Letter) {
+				System.out.println(((Letter) e).isOnBoard());
+				if (! ((Letter) e).isOnBoard()) res.add(e.getPosition());
+			}
+		}
+		return res;
 	}
 	
-	public List<Integer> getLettersInInventoryX() {
+	public List<Vector2f> getNonBlankLettersInInventoryPosition() {
+		List<Entity> entities = new ArrayList<Entity>();
+		List<Vector2f> res = new ArrayList<Vector2f>();
+		if (scrabble != null) 
+			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
+		for (Entity e : entities) {
+			if (e instanceof Letter) {
+				if (!((Letter) e).isOnBoard() && !isLetterBlank(e.getPosition())) res.add(e.getPosition());
+			}
+		}
+		return res;
+	}
+	
+	/*public List<Integer> getLettersInInventoryX() {
 		List<Entity> entities = new ArrayList<Entity>();
 		List<Integer> letters = new ArrayList<Integer>();
 		if (scrabble != null) 
@@ -220,20 +254,28 @@ public class ScrabbleTestAdapterMinimal {
 			}
 		}
 		return letters;
-	}
+	}*/
 	
-	public char getLetter(int x, int y) {
+	public char getLetter(Vector2f pos) {
 		List<Entity> entities = new ArrayList<Entity>();
 		if (scrabble != null) 
 			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
 		for (Entity e : entities) {
-			if (e.getPosition().getX() == x
-					&& e.getPosition().getY() == y && e instanceof Letter) 
+			if (e.getPosition().getX() == pos.getX()
+					&& e.getPosition().getY() == pos.getY() && e instanceof Letter) 
 				return ((Letter)e).getValue();
 		}
 		return '\u0000';
 	}
 	
+	public boolean isLetterBlank(Vector2f pos) {
+		// DELETE THIS?
+		char letter = getLetter(pos);
+		if (letter == '_') return true;
+		return false;
+	}
+	
+
 	
 	public int getLetterScore(char letter) {
 		return ((GameplayState) scrabble.getState(getGameplayStateID())).getLetterScore(letter); 
@@ -327,6 +369,19 @@ public class ScrabbleTestAdapterMinimal {
 		if (scrabble != null && app != null) {
 			app.getTestInput().setMouseX(x);
 			app.getTestInput().setMouseY(y);
+			app.getTestInput().setMouseButtonPressed(input);
+			try {
+				app.updateGame(delta);
+			} catch (SlickException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void handleMousePressed(Vector2f pos,int delta,int input) {
+		if (scrabble != null && app != null) {
+			app.getTestInput().setMouseX((int)pos.getX());
+			app.getTestInput().setMouseY((int)pos.getY());
 			app.getTestInput().setMouseButtonPressed(input);
 			try {
 				app.updateGame(delta);

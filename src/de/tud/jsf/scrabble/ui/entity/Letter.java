@@ -23,7 +23,9 @@ public class Letter extends Entity implements GameParameters{
 	Vector2f pos;
 	String tile_id;
 	
-	public Letter(String entityID, char letter, Vector2f pos) {
+	boolean onBoard;
+	
+	public Letter(String entityID, char letter, Vector2f pos,boolean onBoard) {
 		super(entityID);
 		
 		Set<Character> alphabet = Set.of('_','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
@@ -35,12 +37,17 @@ public class Letter extends Entity implements GameParameters{
 		this.value = letter;
 		this.pos = pos;
 		this.id = entityID;
+		this.onBoard = onBoard;
 		
 		this.setPosition(pos);
 		if (!Launch.debug)this.addImageComponent();
 		this.setScale(LETTER_SCALE_FACTOR);
 		this.setVisible(true);
 		this.setSize(new Vector2f(256*LETTER_SCALE_FACTOR,256*LETTER_SCALE_FACTOR));
+	}
+	
+	public boolean isOnBoard() {
+		return onBoard;
 	}
 	
 	public Vector2f getPosition() {

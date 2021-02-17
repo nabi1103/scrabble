@@ -251,7 +251,7 @@ public class CEState extends BasicGameState implements GameParameters {
 			} else {
 				tv = new Vector2f(920 - 50 * (7 - i), 450);
 			}
-			Letter l = new Letter(taken_letter.get(i), taken_letter.get(i).charAt(0), tv);
+			Letter l = new Letter(taken_letter.get(i), taken_letter.get(i).charAt(0), tv,false);
 			current_display_taken_letter.add(l);
 			entityManager.addEntity(stateID, l);
 		}

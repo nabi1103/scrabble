@@ -75,9 +75,9 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	// String UI
 	private String displayPlayerID;
 
-	private static int turn = 0;
+	private static int turn;
 
-	private static String warning_text ;
+	private static String warning_text;
 	private static String status_text;
 	private static String current_total_score;
 
@@ -153,6 +153,8 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		warning_text = "";
 		status_text = "";
 		current_total_score = "";
+		turn = 0;
+		consecutivePasses = 0;
 		// Initialize background
 		background = new Entity("background");
 		background.setPosition(new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
@@ -495,7 +497,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 				}
 				move_letter = true;
 				tmp_letter = l;
-			}
+			}	
 		};
 		clickEvent.addAction(clickOnLetter);
 		l.addComponent(clickEvent);
@@ -562,7 +564,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 				// Since this tile can be placed, add it to the list
 				newTilesThisTurn.add(t);
 
-				Letter new_letter = new Letter(tmp_letter.getID(), tmp_letter.getValue(), t.getPosition());
+				Letter new_letter = new Letter(tmp_letter.getID(), tmp_letter.getValue(), t.getPosition(),true);
 
 				used_letters.add(new_letter);
 				char value = new_letter.getValue();
@@ -684,12 +686,14 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		if (new_word.getValue().length() > 1)
 			current_words.add(new_word);
 		new_word.getTiles().forEach((t) -> {
+			System.out.println("Multiplier is cleared");
 			t.clearMultiplier();
 		});
 
 	}
 
 	public Word[] getWord(int i, int j) {
+		System.out.println("Get word called with params " + i +"," + j);
 		char curr_char = char_grid[i][j];
 
 		String left = "";
@@ -701,6 +705,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 		int score = getLetterScore(curr_char) * tiles[i][j].getLetterMultiplier();
 		int word_multiplier = tiles[i][j].getWordMultiplier();
+	
 		ArrayList<Tile> word_tiles_h = new ArrayList<Tile>();
 		word_tiles_h.add(tiles[i][j]);
 		ArrayList<Tile> word_tiles_v = new ArrayList<Tile>();
@@ -786,7 +791,9 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		word = left + curr_char + right;
 
 		// if (lexicon.check(word)) {
+		
 		word_score = score * word_multiplier;
+		System.out.println(word_score);
 		// }
 
 		word_tiles_v.sort(new Comparator<Tile>() {
@@ -884,7 +891,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		letter_map.put('y', 2);
 		letter_map.put('z', 1);
 		letter_map.put('w', 2);
-		letter_map.put('_', 2);
+		letter_map.put('_', 100);
 
 		for (char c : letter_map.keySet()) {
 			for (int i = 0; i < letter_map.get(c); i++) {
@@ -914,7 +921,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			} else {
 				tv = new Vector2f(920 - 50 * (7 - i), 450);
 			}
-			Letter l = new Letter(p.getLetters().get(i), p.getLetters().get(i).charAt(0), tv);
+			Letter l = new Letter(p.getLetters().get(i), p.getLetters().get(i).charAt(0), tv,false);
 			moveLetterToBoardLetter(l);
 			entityManager.addEntity(stateID, l);
 			current_display_letters.add(l);
@@ -943,7 +950,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			} else {
 				tv = new Vector2f(920 - 50 * (7 - i), 625);
 			}
-			Letter l = new Letter(traded_letter.get(i), traded_letter.get(i).charAt(0), tv);
+			Letter l = new Letter(traded_letter.get(i), traded_letter.get(i).charAt(0), tv,false);
 			current_display_traded_letters.add(l);
 			entityManager.addEntity(stateID, l);
 		}
@@ -955,7 +962,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			if (p.getLetters().isEmpty()) emptyInventory = true;
 		}
 		// Ending condition fulfilled
-		if (consecutivePasses >= 2*Players.getNumberOfPlayers()|| emptyInventory) {
+		if (consecutivePasses >= 2*Players.getNumberOfPlayers() || (emptyInventory && bag_of_letters.size() == 0)) {
 			ArrayList<Player> sortedPlayers = new ArrayList<Player>();
 			for (Player p : Players.getPlayers()) sortedPlayers.add(p);
 			sortedPlayers.sort(new Comparator<Player>() {
