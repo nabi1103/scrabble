@@ -569,7 +569,8 @@ public class GameplayState extends BasicGameState implements GameParameters {
 				 */
 				// Since this tile can be placed, add it to the list
 				newTilesThisTurn.add(t);
-
+				
+				
 				Letter new_letter = new Letter(tmp_letter.getID(), tmp_letter.getValue(), t.getPosition(),true);
 
 				used_letters.add(new_letter);
@@ -587,6 +588,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 						return;
 					} else {
 						value = Character.toUpperCase(return_value);
+						new_letter.addBlankImageComponent(return_value);
 					}
 				}
 				
@@ -615,6 +617,10 @@ public class GameplayState extends BasicGameState implements GameParameters {
 				addToCurrentWord(curr_words[1]);
 				int temp = 0;
 				temp = current_words.stream().mapToInt((w) -> w.getScore()).sum();
+				if (newTilesThisTurn.size() >= 7) {
+					temp += 50;
+					warning_text = "BINGO";
+				}
 				current_total_score = (temp > 0 ? temp + "" : "" );
 			}
 		};
@@ -1044,9 +1050,14 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		turn++;
 
 		// Update score for current player
-		int newScore = currentPlayer.getScore() + current_words.stream().mapToInt((w) -> w.getScore()).sum();
-		currentPlayer.setScore(newScore);
 		last_player_added_point = current_words.stream().mapToInt((w) -> w.getScore()).sum();
+		int newScore = currentPlayer.getScore() + current_words.stream().mapToInt((w) -> w.getScore()).sum();
+		if(newTilesThisTurn.size() >= 7) {
+			newScore += 50;
+			last_player_added_point += 50;
+		}
+		currentPlayer.setScore(newScore);
+		
 		used_letters.forEach((l) -> {
 			last_player_used_letters.add(l);
 			Players.currentPlayer.removeLetter(l.getID());

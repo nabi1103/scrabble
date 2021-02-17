@@ -22,6 +22,7 @@ public class Letter extends Entity implements GameParameters{
 	int score;
 	Vector2f pos;
 	String tile_id;
+	ImageRenderComponent image;
 	
 	boolean onBoard;
 	
@@ -66,12 +67,32 @@ public class Letter extends Entity implements GameParameters{
 	}
 	
 	public ImageRenderComponent addImageComponent() {
-		ImageRenderComponent image = null;
+		image = null;
 		
 		for (String path : LETTERS) {
 			char image_id;
 			image_id = path.charAt(30);
 			if(this.value == Character.toLowerCase(image_id)) {
+				try {
+					image = new ImageRenderComponent(new Image(path));
+					this.addComponent(image);
+				} catch (SlickException e) {
+					System.err.println("Cannot find file " + path);
+					e.printStackTrace();
+				}
+				return image;
+			}
+		}
+		return image;
+	}
+	
+	public ImageRenderComponent addBlankImageComponent(char c) {
+		this.removeComponent(image);
+		
+		for (String path : LETTERS) {
+			char image_id;
+			image_id = path.charAt(30);
+			if(c == Character.toLowerCase(image_id)) {
 				try {
 					image = new ImageRenderComponent(new Image(path));
 					this.addComponent(image);
