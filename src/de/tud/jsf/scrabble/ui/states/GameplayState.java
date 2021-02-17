@@ -580,7 +580,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 						tmp_letter = null;
 						return;
 					} else {
-						value = return_value;
+						value = Character.toUpperCase(return_value);
 					}
 				}
 				
@@ -685,10 +685,10 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		}
 		if (new_word.getValue().length() > 1)
 			current_words.add(new_word);
-		new_word.getTiles().forEach((t) -> {
-			System.out.println("Multiplier is cleared");
-			t.clearMultiplier();
-		});
+//		new_word.getTiles().forEach((t) -> {
+//			System.out.println("Multiplier is cleared");
+//			t.clearMultiplier();
+//		});
 
 	}
 
@@ -811,7 +811,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	}
 
 	public int getLetterScore(char c) {
-		Set<Character> blank = Set.of('_');
+		Set<Character> blank = Set.of('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
 
 		if (blank.contains(c)) {
 			return 0;
@@ -1101,6 +1101,9 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 		// Clear store arrays
 		current_words.clear();
+		newTilesThisTurn.forEach((t) -> {
+			t.clearMultiplier();
+		});
 		newTilesThisTurn.clear();
 
 		// Update state and char_grid
