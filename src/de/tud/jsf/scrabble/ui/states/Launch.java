@@ -30,13 +30,13 @@ public class Launch extends StateBasedGame implements GameParameters{
         addState(new GameplayState(GAMEPLAY_STATE));
         addState(new CEState(CE_STATE));
         addState(new PlayerSelectState(PLAYER_SELECT_STATE));
-        //addState(new HighscoreState(HIGHSCORE_STATE));
+        addState(new HighscoreState(HIGHSCORE_STATE));
 
         StateBasedEntityManager.getInstance().addState(MAINMENU_STATE);
         StateBasedEntityManager.getInstance().addState(GAMEPLAY_STATE);
         StateBasedEntityManager.getInstance().addState(CE_STATE);
         StateBasedEntityManager.getInstance().addState(PLAYER_SELECT_STATE);
-        //StateBasedEntityManager.getInstance().addState(HIGHSCORE_STATE);
+        StateBasedEntityManager.getInstance().addState(HIGHSCORE_STATE);
 	}
 	
 	public static void main(String args[]) throws SlickException {

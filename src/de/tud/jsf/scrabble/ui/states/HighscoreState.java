@@ -19,6 +19,7 @@ import org.newdawn.slick.state.StateBasedGame;
 import de.tud.jsf.scrabble.constants.GameParameters;
 import de.tud.jsf.scrabble.model.highscore.Highscore;
 import de.tud.jsf.scrabble.model.highscore.HighscoreList;
+import de.tud.jsf.scrabble.ui.entity.DialogueButton;
 import eea.engine.action.Action;
 import eea.engine.action.basicactions.ChangeStateAction;
 import eea.engine.component.render.ImageRenderComponent;
@@ -29,21 +30,17 @@ import eea.engine.event.basicevents.MouseClickedEvent;
 import eea.engine.event.basicevents.MouseEnteredEvent;
 
 public class HighscoreState extends BasicGameState implements GameParameters {
-	private int stateID; 			
-	private StateBasedEntityManager entityManager; 
+	private int stateID;
+	private StateBasedEntityManager entityManager;
 	private HighscoreList highscoreList;
-	
-	
-    
-    HighscoreState(int sid){
-    	stateID = sid;
-    	entityManager = StateBasedEntityManager.getInstance();
-    	
-    	this.highscoreList = HighscoreList.getInstance();
-    	highscoreList.load();
-    }
-    
-    
+
+	HighscoreState(int sid) {
+		stateID = sid;
+		entityManager = StateBasedEntityManager.getInstance();
+
+		this.highscoreList = HighscoreList.getInstance();
+		highscoreList.load();
+	}
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
@@ -51,54 +48,57 @@ public class HighscoreState extends BasicGameState implements GameParameters {
 		// Setup background
 		setBackground();
 		// Return to main menu button
-		Entity back = new Entity("Back");
-    	back.setPosition(new Vector2f(WINDOW_WIDTH-100,WINDOW_HEIGHT - 100));
-    	back.setScale(0.3f);
-    	back.addComponent(new ImageRenderComponent(new Image(DBOX)));    	
-    	ANDEvent backToMenu = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
-    	Action backToMenuAction = new ChangeStateAction(Launch.MAINMENU_STATE);
-    	backToMenu.addAction(backToMenuAction);
-    	back.addComponent(backToMenu);
-    	entityManager.addEntity(stateID,back);
-    	
+//		Entity back = new Entity("Back");
+//    	back.setPosition(new Vector2f(WINDOW_WIDTH-100,WINDOW_HEIGHT - 100));
+//    	back.setScale(0.3f);
+//    	back.addComponent(new ImageRenderComponent(new Image(DBOX)));   
+
+		DialogueButton back = new DialogueButton("back_button", new Vector2f(WINDOW_WIDTH - 100, WINDOW_HEIGHT - 100),
+				"back");
+
+		ANDEvent backToMenu = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+		Action backToMenuAction = new ChangeStateAction(Launch.MAINMENU_STATE);
+		backToMenu.addAction(backToMenuAction);
+		back.addComponent(backToMenu);
+		back.addImageComponent();
+
+		entityManager.addEntity(stateID, back);
 	}
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-		// TODO Auto-generated method stub
-		entityManager.renderEntities(container,game,g);
+		entityManager.renderEntities(container, game, g);
 		List<Highscore> highscores = highscoreList.getHighscores();
-		
+
 		float x = 150;
-		float y =275;
-		
+		float y = 275;
+
 		g.drawString("Name", x, y - 50);
 		g.drawString("Score", x + 225, y - 50);
 		g.drawString("Round won", x + 385, y - 50);
-		
-		if (highscores.isEmpty()) g.drawString("No highscores found.",x+40,y+50);
+
+		if (highscores.isEmpty())
+			g.drawString("No highscores found.", x + 40, y + 50);
 		int i = 1;
 		for (Highscore hsc : highscores) {
 			// Position
 			g.drawString(String.valueOf(i) + ".", x - 40, y);
 			// Name
-			g.drawString(hsc.getName() , x, y); 
+			g.drawString(hsc.getName(), x, y);
 			// Score
-			g.drawString(((Integer)hsc.getScore()).toString(), x + 250, y);
+			g.drawString(((Integer) hsc.getScore()).toString(), x + 250, y);
 			// Round
-			g.drawString(((Integer)hsc.getRound()).toString(), x + 375, y);
+			g.drawString(((Integer) hsc.getRound()).toString(), x + 375, y);
 			i++;
 			y += 35;
 		}
-		g.drawString("Back", WINDOW_WIDTH-118,WINDOW_HEIGHT - 110);
-		
-		
+//		g.drawString("Back", WINDOW_WIDTH-118,WINDOW_HEIGHT - 110);
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		entityManager.updateEntities(container, game, delta);
-		
+
 	}
 
 	@Override
@@ -106,14 +106,12 @@ public class HighscoreState extends BasicGameState implements GameParameters {
 		// TODO Auto-generated method stub
 		return stateID;
 	}
-	
+
 	private void setBackground() throws SlickException {
-		Entity background = new Entity("background");	
-    	background.setPosition(new Vector2f(480,360));
-    	background.addComponent(new ImageRenderComponent(new Image(MAINMENU)));
-    	entityManager.addEntity(stateID, background);
+		Entity background = new Entity("background");
+		background.setPosition(new Vector2f(480, 360));
+		background.addComponent(new ImageRenderComponent(new Image(MAINMENU)));
+		entityManager.addEntity(stateID, background);
 	}
-	
-	
 
 }

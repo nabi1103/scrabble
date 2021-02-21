@@ -26,6 +26,7 @@ import eea.engine.event.basicevents.MouseEnteredEvent;
 
 import de.tud.jsf.scrabble.model.player.*;
 import de.tud.jsf.scrabble.ui.entity.ChangeNameButton;
+import de.tud.jsf.scrabble.ui.entity.DialogueButton;
 
 
 public class PlayerSelectState extends BasicGameState implements GameParameters{
@@ -43,8 +44,8 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
     private final int DISTANCE_BETWEEN_BUTTONS = 75;
     
     ChangeNameButton[] playerBoxes;
-    Entity start;
-    Entity back;
+//    Entity start;
+//    Entity back;
     
     PlayerSelectState(int sid){
     	stateID = sid;
@@ -91,11 +92,14 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
     	entityManager.addEntity(stateID, background);
     	
     	// Start the game
-    	start = new Entity("Start");
-    	start.setPosition(new Vector2f(CENTERX - DISTANCE_BETWEEN_BUTTONS,WINDOW_HEIGHT - 100));
-    	start.setScale(0.2f);
-    	start.setSize(new Vector2f(400/2,200/2));
-    	if (!Launch.debug) start.addComponent(new ImageRenderComponent(new Image(DBOX)));   	
+//    	start = new Entity("Start");
+//    	start.setPosition(new Vector2f(CENTERX - DISTANCE_BETWEEN_BUTTONS,WINDOW_HEIGHT - 100));
+//    	start.setScale(0.2f);
+//    	start.setSize(new Vector2f(400/2,200/2));
+//    	if (!Launch.debug) start.addComponent(new ImageRenderComponent(new Image(DBOX)));  
+    	
+    	DialogueButton start = new DialogueButton("start_button", new Vector2f(CENTERX - DISTANCE_BETWEEN_BUTTONS,WINDOW_HEIGHT - 100), "start");
+    	
     	ANDEvent startEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
     	startEvent.addAction(new Action() {
 			@Override
@@ -104,17 +108,20 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
 					arg1.enterState(arg1.getState(GAMEPLAY_STATE).getID());
 					((GameplayState)arg1.getState(GAMEPLAY_STATE)).setLastStateID(stateID);
 				}
-					
 			}				
 		});
     	start.addComponent(startEvent);
+    	start.addImageComponent();
     	
     	// Return to main menu   	
-    	back = new Entity("Back");
-    	back.setPosition(new Vector2f(CENTERX + DISTANCE_BETWEEN_BUTTONS,WINDOW_HEIGHT - 100));
-    	back.setScale(0.2f);
-    	back.setSize(new Vector2f(400/2,200/2));
-    	if (!Launch.debug) back.addComponent(new ImageRenderComponent(new Image(DBOX)));    	
+//    	back = new Entity("Back");
+//    	back.setPosition(new Vector2f(CENTERX + DISTANCE_BETWEEN_BUTTONS,WINDOW_HEIGHT - 100));
+//    	back.setScale(0.2f);
+//    	back.setSize(new Vector2f(400/2,200/2));
+//    	if (!Launch.debug) back.addComponent(new ImageRenderComponent(new Image(DBOX)));    
+    	
+    	DialogueButton back = new DialogueButton("back_button", new Vector2f(CENTERX + DISTANCE_BETWEEN_BUTTONS,WINDOW_HEIGHT - 100), "back");
+    	
     	ANDEvent backToMenu = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
     	Action backToMenuAction = new ChangeStateAction(Launch.MAINMENU_STATE);
     	Action resetState = new Action() {
@@ -127,7 +134,9 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
     	};
     	backToMenu.addAction(backToMenuAction);
     	backToMenu.addAction(resetState);
+    	
     	back.addComponent(backToMenu);
+    	back.addImageComponent();
     	
     	// Player boxes
     	
@@ -148,7 +157,6 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
 		return new Action() {
 			@Override
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
-				// TODO Auto-generated method stub
 				selectPlayer(playerBoxes[i]);
 			}			
 		};
@@ -157,14 +165,14 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
 	public void render(GameContainer container, StateBasedGame game, Graphics graphic) throws SlickException {
 		entityManager.renderEntities(container, game, graphic);
 		graphic.setColor(new Color(0, 0, 0));
-		graphic.drawString("Start", start.getPosition().getX() - 17,start.getPosition().getY() - 10);
-		graphic.drawString("Back", back.getPosition().getX() - 15,back.getPosition().getY() - 10);
+//		graphic.drawString("Start", start.getPosition().getX() - 17,start.getPosition().getY() - 10);
+//		graphic.drawString("Back", back.getPosition().getX() - 15,back.getPosition().getY() - 10);
 		for (int i = 0; i < playerBoxes.length ; i ++) {
 			graphic.drawString(playerBoxes[i].getName(),playerBoxes[i].getPosition().getX() - 25, playerBoxes[i].getPosition().getY() - 10);
 		}	
-		graphic.drawString("Players: " + numberOfPlayers, back.getPosition().getX(),back.getPosition().getY() + 70);
+//		graphic.drawString("Players: " + numberOfPlayers, back.getPosition().getX(),back.getPosition().getY() + 70);
 		graphic.setColor(new Color(255,0,0));
-		graphic.drawString(statusBar, back.getPosition().getX(),back.getPosition().getY() + 50);
+//		graphic.drawString(statusBar, back.getPosition().getX(),back.getPosition().getY() + 50);
 	}
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {

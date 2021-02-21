@@ -29,12 +29,6 @@ import eea.engine.component.render.ImageRenderComponent;
 import eea.engine.entity.Entity;
 import eea.engine.entity.StateBasedEntityManager;
 import eea.engine.event.ANDEvent;
-import eea.engine.event.Event;
-import eea.engine.event.OREvent;
-import eea.engine.event.basicevents.KeyDownEvent;
-import eea.engine.event.basicevents.KeyPressedEvent;
-import eea.engine.event.basicevents.LeavingScreenEvent;
-import eea.engine.event.basicevents.LoopEvent;
 import eea.engine.event.basicevents.MouseClickedEvent;
 import eea.engine.event.basicevents.MouseEnteredEvent;
 import de.tud.jsf.scrabble.constants.GameParameters;
@@ -106,6 +100,8 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	// Trade button
 	Vector2f trade_pos = new Vector2f(880, 180);
 	private DialogueButton trade = new DialogueButton("trade_button", trade_pos, "trade");
+	Vector2f show_pos = new Vector2f(825, 510);
+	private DialogueButton show = new DialogueButton("show_button", show_pos, "show");
 
 	private ArrayList<String> traded_letter = new ArrayList<String>();
 	private boolean trading = false; // If currently trading -> can't put new tiles to the board
@@ -227,6 +223,13 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			trade.addImageComponent();
 		entityManager.addEntity(stateID, trade);
 		triggerTrade(trade);
+		
+		// Toggle Show Button
+
+		show = new DialogueButton("check_button", show_pos, "show");
+		show.addImageComponent();
+		entityManager.addEntity(stateID, show);
+		triggerShow(show);
 
 		// TEST button
 		Vector2f test_pos = new Vector2f(900, 240);
@@ -506,6 +509,29 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 	}
 
+	
+	public void triggerShow(DialogueButton button) {
+		ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+		Action clickOnButton = new Action() {
+			@Override
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				boolean is_visible = current_display_letters.get(0).isVisible();
+				current_display_letters.forEach((l) -> {
+					l.setVisible(!is_visible);
+				});
+				if(button.getType() == "show") {
+					button.setType("hide");
+					button.addImageComponent();
+				} else if (button.getType() == "hide") {
+					button.setType("show");
+					button.addImageComponent();
+				}
+			}			
+		};
+		clickEvent.addAction(clickOnButton);
+		button.addComponent(clickEvent);
+	}
+		
 	// Moving letters function
 	public void moveLetterToBoardLetter(Letter l) {
 		ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
@@ -959,6 +985,9 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			entityManager.addEntity(stateID, l);
 			current_display_letters.add(l);
 		}
+		current_display_letters.forEach((l) -> {
+			l.setVisible(false);
+		});
 	}
 
 	public void renderTradedLetter() {
@@ -1064,6 +1093,9 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		}
 
 		turn++;
+		
+		show.setType("show");
+		show.addImageComponent();
 
 		// Update score for current player
 		last_player_added_point = current_words.stream().mapToInt((w) -> w.getScore()).sum();
@@ -1165,6 +1197,10 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 		current_words.clear();
 		used_letters.clear();
+		
+		show.setType("show");
+		show.addImageComponent();
+		
 		// Undo trade parameters
 		trading = false;
 		traded_letter.forEach((l) -> {
