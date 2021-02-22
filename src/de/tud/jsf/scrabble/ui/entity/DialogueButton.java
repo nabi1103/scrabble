@@ -14,6 +14,7 @@ public class DialogueButton extends Entity implements GameParameters{
 	Vector2f pos;
 	String type; // "confirm", "cancel"
 	DialogueBox parent;
+	ImageRenderComponent image;
 
 	public DialogueButton(String entityID, Vector2f startPos, String type) {
 		super(entityID);
@@ -36,13 +37,15 @@ public class DialogueButton extends Entity implements GameParameters{
 		return type;
 	}
 	
+	public void setType(String t) {
+		this.type = t;
+	}
+	
 	public DialogueBox getDialogueBox() {
 		return parent;
 	}
 	
-	public ImageRenderComponent addImageComponent() {
-		ImageRenderComponent image = null;
-		
+	public ImageRenderComponent addImageComponent() {		
 		switch (this.getType()) {
 		case "confirm":
 			try {
@@ -103,9 +106,78 @@ public class DialogueButton extends Entity implements GameParameters{
 			}
 			break;
 			
+		case "new_game":
+			try {
+				image = new ImageRenderComponent(new Image(NEW_GAME_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + NEW_GAME_BUTTON);
+				e.printStackTrace();
+			}
+			break;
+		
+		case "highscore":
+			try {
+				image = new ImageRenderComponent(new Image(HIGHSCORE_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + HIGHSCORE_BUTTON);
+				e.printStackTrace();
+			}
+			break;
+		
+		case "quit":
+			try {
+				image = new ImageRenderComponent(new Image(QUIT_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + QUIT_BUTTON);
+				e.printStackTrace();
+			}
+			break;
+			
+		case "show":
+			this.removeComponent(image);
+			try {
+				image = new ImageRenderComponent(new Image(SHOW_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + SHOW_BUTTON);
+				e.printStackTrace();
+			}
+			break;
+			
+		case "hide":
+			this.removeComponent(image);
+			try {
+				image = new ImageRenderComponent(new Image(HIDE_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + HIDE_BUTTON);
+				e.printStackTrace();
+			}
+			break;
+			
+		case "back":
+			try {
+				image = new ImageRenderComponent(new Image(BACK_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + BACK_BUTTON);
+				e.printStackTrace();
+			}
+			break;
+		
+		case "start":
+			try {
+				image = new ImageRenderComponent(new Image(START_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + START_BUTTON);
+				e.printStackTrace();
+			}
+			break;
 		}
-		
-		
 		
 		return image; 
 	}

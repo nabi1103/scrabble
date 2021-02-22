@@ -77,13 +77,19 @@ public interface GameParameters {
 	public static final String DBOX_YES = "assets/scrabble/ui/grey_boxCheckmark.png";
 	public static final String DBOX_NO = "assets/scrabble/ui/grey_boxCross.png";
 	
-	public static final String COMMIT_BUTTON = "assets/scrabble/ui/commit_button.png";
+	public static final String COMMIT_BUTTON = "assets/scrabble/ui/play_button.png";
 	public static final String UNDO_BUTTON = "assets/scrabble/ui/undo_button.png";
 	public static final String CHECK_BUTTON = "assets/scrabble/ui/check_button.png";
 	public static final String TRADE_BUTTON = "assets/scrabble/ui/trade_button.png";
 	public static final String START_BUTTON = "assets/scrabble/ui/start_button.png";
 	public static final String RETURN_BUTTON = "assets/scrabble/ui/return_button.png";
-
+	public static final String NEW_GAME_BUTTON = "assets/scrabble/ui/new_game_button.png";
+	public static final String HIDE_BUTTON = "assets/scrabble/ui/hide_button.png";
+	public static final String HIGHSCORE_BUTTON = "assets/scrabble/ui/highscore_button.png";
+	public static final String QUIT_BUTTON = "assets/scrabble/ui/quit_button.png";
+	public static final String SHOW_BUTTON = "assets/scrabble/ui/show_button.png";
+	public static final String BACK_BUTTON = "assets/scrabble/ui/back_button.png";
+	
 	public static final String BACKGROUND = "assets/scrabble/ui/background.png";
 	public static final String MAINMENU = "assets/scrabble/ui/main_menu.png";
 	

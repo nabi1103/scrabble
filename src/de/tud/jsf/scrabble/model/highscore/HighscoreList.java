@@ -12,33 +12,36 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+public class HighscoreList {
 
-
-public class HighscoreList  {
-	
 	private static final HighscoreList highscoreList = new HighscoreList();
 	private List<Highscore> highscores;
 	private boolean loaded;
-	
+
 	private HighscoreList() {
 		highscores = new ArrayList<Highscore>();
 		loaded = false;
 	}
-	
+
 	public void addHighscore(Highscore highscore) {
 		highscores.add(highscore);
-		//sort();
+		// sort();
 		if (highscores.size() > 10) {
 			highscores.remove(10);
 		}
 		save();
 	}
-	
-	private void sort() {
-		Collections.sort(highscores,null); 
-			
+
+	public void sort() {
+		Comparator<Highscore> c = new Comparator<Highscore>() {
+			@Override
+			public int compare(Highscore arg0, Highscore arg1) {
+				return arg1.getScore() - arg0.getScore();
+			}
+		};
+		Collections.sort(highscores, c);
 	}
-	
+
 	@Override
 	public String toString() {
 		String res = "";
@@ -47,15 +50,16 @@ public class HighscoreList  {
 		}
 		return res;
 	}
-	
+
 	public static HighscoreList getInstance() {
 		return highscoreList;
 	}
-	
+
 	public List<Highscore> getHighscores() {
+		sort();
 		return highscores;
 	}
-	
+
 	public void save() {
 		String fileName = "highscores.txt";
 		try {
@@ -80,7 +84,7 @@ public class HighscoreList  {
 					loaded = true;
 					System.out.println("Highscore successfully loaded.");
 				}
-				
+
 			} catch (FileNotFoundException e) {
 				System.out.println("No highscore file found for this map.");
 			} catch (IOException e) {
@@ -88,32 +92,29 @@ public class HighscoreList  {
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-		}
-		else {
+		} else {
 			try {
 				System.out.println("Creating new highscore.txt file");
 				f.createNewFile();
-			}
-			catch (IOException exc) {
+			} catch (IOException exc) {
 				exc.printStackTrace();
 			}
 		}
 	}
-	
+
 	public boolean isNewHighscore(Highscore hsc, Comparator comp) {
-		
+
 		// List is not full
 		if (highscores.size() < 10) {
 			return true;
 		}
-		
+
 		// Last highscore entry
 		Highscore lastHighscore = highscores.get(9);
-		
-		
+
 		// If the result is -1, the new highscore is better
 		int result = comp.compare(hsc, lastHighscore);
-		
+
 		// Better
 		if (result == -1) {
 			return true;
@@ -123,13 +124,9 @@ public class HighscoreList  {
 			return false;
 		}
 	}
-	
+
 	public boolean hasHighscoreLoaded() {
 		return loaded;
 	}
-	
-	
-	
-	
 
 }

@@ -17,8 +17,6 @@ import org.newdawn.slick.geom.Vector2f;
 
 import de.tud.jsf.scrabble.tests.adapter.ScrabbleTestAdapterMinimal;
 
-
-
 public class PlayButtonTest {
 	
 	ScrabbleTestAdapterMinimal adapter;

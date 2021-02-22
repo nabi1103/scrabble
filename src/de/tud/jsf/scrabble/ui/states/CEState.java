@@ -54,9 +54,11 @@ public class CEState extends BasicGameState implements GameParameters {
 	private boolean return_clickable = false;
 	static boolean play_clickable = false;
 	
+	private Entity return_button;
+	
 	// Gameplay
 	static int limit;
-	//static int current_player;
+	static int current_player;
 	
 	// Warning text
 	static String warning_text = "";
@@ -130,27 +132,33 @@ public class CEState extends BasicGameState implements GameParameters {
 		entityManager.addEntity(stateID, play_button);
 
 		// Return to Gameplay State
-		Entity return_button = new Entity("return");
+		return_button = new Entity("return");
 
 		return_button.setPosition(new Vector2f(880, 120));
 		return_button.addComponent(new ImageRenderComponent(new Image(RETURN_BUTTON)));
 
-		ANDEvent return_to_gameplay_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
-		Action new_Game_Action = new ChangeStateAction(Launch.GAMEPLAY_STATE);
-		return_to_gameplay_event.addAction(new Action() {
-			@Override
-			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
-				if (!return_clickable) return;
-				taken_letter.clear();
-				current_display_taken_letter.forEach((l) -> {
-					entityManager.removeEntity(stateID, l);
-				});
-				warning_text = "";
-				return_clickable = false;
-			}
-		});
-		return_to_gameplay_event.addAction(new_Game_Action);
-		return_button.addComponent(return_to_gameplay_event);
+//		ANDEvent return_to_gameplay_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+//		Action new_Game_Action = new ChangeStateAction(Launch.GAMEPLAY_STATE);
+//		return_to_gameplay_event.addAction(new Action() {
+//			@Override
+//			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+//				if (!return_clickable) {
+//					warning_text = "You must complete the CE Minigame before returning to the Scrabble board.";
+//					return_to_gameplay_event.removeAction(new_Game_Action);
+//					return_button.removeComponent(return_to_gameplay_event);
+//					return;
+//				}
+//				taken_letter.clear();
+//				current_display_taken_letter.forEach((l) -> {
+//					entityManager.removeEntity(stateID, l);
+//				});
+//				warning_text = "";
+//				return_clickable = false;
+//			}
+//		});
+//		return_to_gameplay_event.addAction(new_Game_Action);
+//		return_button.addComponent(return_to_gameplay_event);
+		triggerReturn(return_button);
 		entityManager.addEntity(stateID, return_button);
 
 		// Border
@@ -198,6 +206,30 @@ public class CEState extends BasicGameState implements GameParameters {
 			}
 		});
 		l.addComponent(loop);
+	}
+	
+	public void triggerReturn(Entity button) {
+		ANDEvent return_to_gameplay_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+		Action new_Game_Action = new ChangeStateAction(Launch.GAMEPLAY_STATE);
+		return_to_gameplay_event.addAction(new Action() {
+			@Override
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				if (!return_clickable) {
+					warning_text = "You must complete the CE Minigame before returning to the Scrabble board.";
+					return_to_gameplay_event.removeAction(new_Game_Action);
+					button.removeComponent(return_to_gameplay_event);
+					return;
+				}
+				taken_letter.clear();
+				current_display_taken_letter.forEach((l) -> {
+					entityManager.removeEntity(stateID, l);
+				});
+				warning_text = "";
+				return_clickable = false;
+			}
+		});
+		return_to_gameplay_event.addAction(new_Game_Action);
+		button.addComponent(return_to_gameplay_event);
 	}
 
 	public void renderDroppableLetter(String letter) {
@@ -249,7 +281,7 @@ public class CEState extends BasicGameState implements GameParameters {
 			if (i < 4) {
 				tv = new Vector2f(750 + 50 * i, 400);
 			} else {
-				tv = new Vector2f(920 - 50 * (7 - i), 450);
+				tv = new Vector2f(925 - 50 * (7 - i), 450);
 			}
 			Letter l = new Letter(taken_letter.get(i), taken_letter.get(i).charAt(0), tv,false);
 			current_display_taken_letter.add(l);
@@ -266,8 +298,9 @@ public class CEState extends BasicGameState implements GameParameters {
 		timer.cancel();
 		play_clickable = false;
 		return_clickable = true;
+		triggerReturn(return_button);
 		for (int i = 0; i < Players.getNumberOfPlayers(); i++) {
-			if (Players.getPlayers().get(i).getID() == Players.currentPlayer.getID()) {
+			if (Players.getPlayers().get(i).getID() == current_player) {
 				for (int j = 0; j < taken_letter.size(); j++) {
 					Players.getPlayers().get(i).addLetter(taken_letter.get(j));
 				}
