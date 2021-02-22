@@ -24,6 +24,8 @@ import de.tud.jsf.scrabble.constants.GameParameters;
 import de.tud.jsf.scrabble.model.player.Player;
 import de.tud.jsf.scrabble.model.player.Players;
 
+
+// PLAYER SELECT, PLACING LETTERS, UNDO, PLAY
 public class ScrabbleTestAdapterMinimal {
 	
 	Launch scrabble;
@@ -119,7 +121,7 @@ public class ScrabbleTestAdapterMinimal {
 	
 	public int getCurrentRound() {
 		// TODO
-		return ((GameplayState) scrabble.getState(getGameplayStateID())).getCurrentTurn();
+		return ((GameplayState) scrabble.getState(getGameplayStateID())).getCurrentTurn() + 1;
 	}
 	
 	public String getNameOfCurrentPlayer() {
@@ -156,7 +158,19 @@ public class ScrabbleTestAdapterMinimal {
 		return Players.getPlayers().get((Players.currentPlayer.getID() + 1) % Players.getNumberOfPlayers()).getScore();
 	}
 	
-	public int getPlayButtonX() {
+	public Vector2f getPlayButtonPosition() {
+		List<Entity> entities = new ArrayList<Entity>();
+		if (scrabble != null) 
+			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
+		for (Entity e : entities) {
+			if (e.getID() == "play_button") {
+				return e.getPosition();
+			}
+		}
+		return null;
+	}
+	
+	/*public int getPlayButtonX() {
 		List<Entity> entities = new ArrayList<Entity>();
 		if (scrabble != null) 
 			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
@@ -178,6 +192,18 @@ public class ScrabbleTestAdapterMinimal {
 			}
 		}
 		return -1;
+	}*/
+	
+	public Vector2f getUndoButtonPosition() {
+		List<Entity> entities = new ArrayList<Entity>();
+		if (scrabble != null) 
+			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
+		for (Entity e : entities) {
+			if (e.getID() == "undo_button") {
+				return e.getPosition();
+			}
+		}
+		return null;
 	}
 	
 	
@@ -210,7 +236,6 @@ public class ScrabbleTestAdapterMinimal {
 			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
 		for (Entity e : entities) {
 			if (e instanceof Letter) {
-				System.out.println(((Letter) e).isOnBoard());
 				if (! ((Letter) e).isOnBoard()) res.add(e.getPosition());
 			}
 		}
@@ -379,7 +404,7 @@ public class ScrabbleTestAdapterMinimal {
 	}
 	
 	public void handleMousePressed(Vector2f pos,int delta,int input) {
-		if (scrabble != null && app != null) {
+		if (scrabble != null && app != null && pos!= null) {
 			app.getTestInput().setMouseX((int)pos.getX());
 			app.getTestInput().setMouseY((int)pos.getY());
 			app.getTestInput().setMouseButtonPressed(input);
