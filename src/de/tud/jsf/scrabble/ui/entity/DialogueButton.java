@@ -5,6 +5,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 
 import de.tud.jsf.scrabble.constants.GameParameters;
+import de.tud.jsf.scrabble.ui.states.Launch;
 import eea.engine.component.render.ImageRenderComponent;
 
 import eea.engine.entity.Entity;
@@ -45,7 +46,8 @@ public class DialogueButton extends Entity implements GameParameters{
 		return parent;
 	}
 	
-	public ImageRenderComponent addImageComponent() {		
+	public ImageRenderComponent addImageComponent() {
+		if (!Launch.debug)
 		switch (this.getType()) {
 		case "confirm":
 			try {

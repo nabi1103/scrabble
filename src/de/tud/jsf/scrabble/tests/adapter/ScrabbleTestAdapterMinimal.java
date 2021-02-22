@@ -90,7 +90,7 @@ public class ScrabbleTestAdapterMinimal {
 		if (scrabble != null) 
 			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getMainMenuStateID());
 		for (Entity e : entities) {
-			if (e.getID() == "newgame") {
+			if (e.getID() == "new_game_button") {
 				return (int)e.getPosition().getX();
 			}
 		}
@@ -103,7 +103,7 @@ public class ScrabbleTestAdapterMinimal {
 		if (scrabble != null) 
 			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getMainMenuStateID());
 		for (Entity e : entities) {
-			if (e.getID() == "newgame") {
+			if (e.getID() == "new_game_button") {
 				return (int)e.getPosition().getY();
 			}
 		}
@@ -317,7 +317,7 @@ public class ScrabbleTestAdapterMinimal {
 		if (scrabble != null) 
 			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
 		for (Entity e : entities) {
-			if (e.getID() == "Start") {
+			if (e.getID() == "start_button") {
 				return (int)e.getPosition().getX();
 			}
 		}
@@ -330,7 +330,7 @@ public class ScrabbleTestAdapterMinimal {
 		if (scrabble != null) 
 			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
 		for (Entity e : entities) {
-			if (e.getID() == "Start") {
+			if (e.getID() == "start_button") {
 				return (int)e.getPosition().getY();
 			}
 		}
@@ -343,7 +343,7 @@ public class ScrabbleTestAdapterMinimal {
 		if (scrabble != null) 
 			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
 		for (Entity e : entities) {
-			if (e.getID() == "Back") {
+			if (e.getID() == "back_button") {
 				return (int)e.getPosition().getX();
 			}
 		}
@@ -356,7 +356,7 @@ public class ScrabbleTestAdapterMinimal {
 		if (scrabble != null) 
 			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
 		for (Entity e : entities) {
-			if (e.getID() == "Back") {
+			if (e.getID() == "back_button") {
 				return (int)e.getPosition().getY();
 			}
 		}
@@ -427,6 +427,7 @@ public class ScrabbleTestAdapterMinimal {
 				int x = (int)e.getPosition().getX();
 				int y = (int)e.getPosition().getY();
 				handleMousePressed(x,y,0,0);
+				break;
 			}
 		}
 	}

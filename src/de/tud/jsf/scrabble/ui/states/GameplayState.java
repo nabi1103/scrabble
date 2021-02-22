@@ -244,7 +244,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		test_event.addAction(new Action() {
 			@Override
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
-				System.out.println("Current turn" + turn);
+				System.out.println("Current turn: " + turn);
 				System.out.println("Current player: " + displayPlayerID);
 				for (Player p : Players.getPlayers()) {
 					System.out.println("Player " + p.getName() + "(" + p.getID() + ")" + ": " + p.getScore());
@@ -634,7 +634,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 						return;
 					} else {
 						value = Character.toUpperCase(return_value);
-						new_letter.addBlankImageComponent(return_value);
+						if (!Launch.debug)new_letter.addBlankImageComponent(return_value);
 					}
 				}
 
@@ -751,7 +751,6 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	}
 
 	public Word[] getWord(int i, int j) {
-		System.out.println("Get word called with params " + i + "," + j);
 		char curr_char = char_grid[i][j];
 
 		String left = "";
@@ -851,7 +850,6 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		// if (lexicon.check(word)) {
 
 		word_score = score * word_multiplier;
-		System.out.println(word_score);
 		// }
 
 		word_tiles_v.sort(new Comparator<Tile>() {
@@ -1089,7 +1087,6 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		// Increase total turn count
 		if (trading && turn == 0) {
 			turn = turn - 1;
-			System.out.println(turn);
 		}
 
 		turn++;
@@ -1105,11 +1102,13 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			last_player_added_point += 50;
 		}
 		currentPlayer.setScore(newScore);
-
+		
+		last_player_used_letters.clear();
 		used_letters.forEach((l) -> {
 			last_player_used_letters.add(l);
 			Players.currentPlayer.removeLetter(l.getID());
 		});
+		used_letters.clear();
 
 		// Reset trading
 		trading = false;

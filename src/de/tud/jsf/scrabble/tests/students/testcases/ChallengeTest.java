@@ -42,7 +42,7 @@ public class ChallengeTest {
 		challengeButtonPos = adapter.getChallengeButtonPosition();		
 	}
 	
-	@Test
+
 	public void testChallenge1() {
 		// STUDENT
 		// Pressing challenge while there is nothing to check should not be possible
@@ -60,7 +60,7 @@ public class ChallengeTest {
 		adapter.stopGame();
 	}
 	
-	@Test
+
 	public void testChallenge2() {
 		// STUDENT
 		adapter.initGame();
@@ -130,12 +130,15 @@ public class ChallengeTest {
 		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
 		adapter.handleMousePressed(adapter.getFieldPosition(9,10),0,0);
 		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);
+		adapter.testing();
 		// P3 TURN
 		String word1 = "" + adapter.getBoard()[7][7] + adapter.getBoard()[7][8] + adapter.getBoard()[7][9];
 		String word2 = "" + adapter.getBoard()[7][9] + adapter.getBoard()[8][9];
 		int currentRound = adapter.getCurrentRound();
 		String p3Name = adapter.getNameOfCurrentPlayer();
+		String p4Name = adapter.getNameOfNextPlayer();
 		adapter.handleMousePressed(challengeButtonPos,0,0);
+		adapter.testing();
 		//System.out.println("Words are " + word1 + " and " + word2);
 		assertTrue("Can only challenge words formed immediately before current turn!" +
 		"Expected "+ p1Score + "\nActual:" + adapter.getPlayerData().get(p1Name),p1Score == adapter.getPlayerData().get(p1Name));
@@ -154,13 +157,13 @@ public class ChallengeTest {
 		}
 		else {
 			//System.out.println("CHALLENGE FAILED");
-			assertTrue("After a failed challenge the player making it loses their turn!",adapter.getCurrentRound() == currentRound + 1 && p3Name == adapter.getNameOfCurrentPlayer());
+			assertTrue("After a failed challenge the player making it loses their turn!",adapter.getCurrentRound() == currentRound + 1 && p4Name == adapter.getNameOfCurrentPlayer());
 			
 		}
 		adapter.stopGame();
 	}
 	
-	@Test
+
 	public void testChallenge4() {
 		// TUTOR
 		// Challenging after a pass should not be possible

@@ -46,7 +46,7 @@ public class HighscoreState extends BasicGameState implements GameParameters {
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
 		// TODO Auto-generated method stub
 		// Setup background
-		setBackground();
+		if (!Launch.debug)setBackground();
 		// Return to main menu button
 //		Entity back = new Entity("Back");
 //    	back.setPosition(new Vector2f(WINDOW_WIDTH-100,WINDOW_HEIGHT - 100));
@@ -60,7 +60,7 @@ public class HighscoreState extends BasicGameState implements GameParameters {
 		Action backToMenuAction = new ChangeStateAction(Launch.MAINMENU_STATE);
 		backToMenu.addAction(backToMenuAction);
 		back.addComponent(backToMenu);
-		back.addImageComponent();
+		if (!Launch.debug)back.addImageComponent();
 
 		entityManager.addEntity(stateID, back);
 	}
