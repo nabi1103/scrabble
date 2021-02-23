@@ -10,7 +10,7 @@ import eea.engine.entity.Entity;
 import eea.engine.entity.StateBasedEntityManager;
 
 
-// CHALLENGE, HIGHSCORE, SHOW/HIDE
+// HIGHSCORE, SHOW/HIDE, GAMEWINNING
 public class ScrabbleTestAdapterExtended1 extends ScrabbleTestAdapterMinimal {
 	
 	public ScrabbleTestAdapterExtended1() {

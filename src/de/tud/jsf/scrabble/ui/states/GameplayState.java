@@ -29,6 +29,8 @@ import eea.engine.component.render.ImageRenderComponent;
 import eea.engine.entity.Entity;
 import eea.engine.entity.StateBasedEntityManager;
 import eea.engine.event.ANDEvent;
+import eea.engine.event.Event;
+import eea.engine.event.basicevents.LoopEvent;
 import eea.engine.event.basicevents.MouseClickedEvent;
 import eea.engine.event.basicevents.MouseEnteredEvent;
 import de.tud.jsf.scrabble.constants.GameParameters;
@@ -39,6 +41,7 @@ import de.tud.jsf.scrabble.ui.entity.Lexicon;
 import de.tud.jsf.scrabble.ui.entity.DialogueButton;
 import de.tud.jsf.scrabble.ui.entity.Word;
 import de.tud.jsf.scrabble.model.highscore.Highscore;
+import de.tud.jsf.scrabble.model.highscore.HighscoreComparator;
 import de.tud.jsf.scrabble.model.highscore.HighscoreList;
 import de.tud.jsf.scrabble.model.player.*;
 
@@ -306,8 +309,6 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
 				// Check if the rules for the first turn is not broken; if that is the case, the
 				// play is invalid and the player must redo their moves
-				if (!Launch.debug)
-					System.out.println("Play is clicked");
 				if (trading) {
 					warning_text = "You can not commit while there are letters in the trade zone";
 					return;
@@ -1035,8 +1036,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			});
 			String winningMessage = "Player " + sortedPlayers.get(0).getName() + " wins!\n\n"
 					+ "Score of the players:\n";
-			Highscore h = new Highscore(sortedPlayers.get(0).getName(), sortedPlayers.get(0).getScore(), turn - 1);
-			HighscoreList.getInstance().addHighscore(h);
+			
 			for (Player p : sortedPlayers) {
 
 				winningMessage += "Player " + p.getName() + ": " + p.getScore() + "\n";
@@ -1044,39 +1044,16 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 			JFrame frame = new JFrame("");
 			JOptionPane.showMessageDialog(frame, winningMessage, "Game end!", 1);
-			System.out.println("END!");
-
-			Entity dummy = new Entity("Dummy");
-			try {
-				dummy.addComponent(new ImageRenderComponent(new Image(DBOX)));
-			} catch (Exception exc) {
-				exc.printStackTrace();
+			Highscore h = new Highscore(sortedPlayers.get(0).getName(), sortedPlayers.get(0).getScore(), turn - 1);
+			if (HighscoreList.getInstance().isNewHighscore(h, new HighscoreComparator())) {
+				String name = JOptionPane.showInputDialog(frame, "Give winning player name:","New highscore",JOptionPane.QUESTION_MESSAGE);
+				if (name != null) h = new Highscore(name,sortedPlayers.get(0).getScore(), turn -1);
+				HighscoreList.getInstance().addHighscore(h);
 			}
-
-			ANDEvent event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
-
-			/*
-			 * dummy.addComponent(new Event("Ending") {
-			 * 
-			 * @Override protected boolean performAction(GameContainer arg0, StateBasedGame
-			 * arg1, int arg2) { // TODO Auto-generated method stub return true; }
-			 * 
-			 * });
-			 */
-			/*
-			 * event.addAction(new Action() {
-			 * 
-			 * @Override public void update(GameContainer arg0, StateBasedGame arg1, int
-			 * arg2, Component arg3) { arg1.enterState(MAINMENU_STATE); try { new_game =
-			 * true; StateBasedEntityManager.getInstance().clearEntitiesFromState(stateID);
-			 * arg0.initGL(); arg0.reinit(); } catch (SlickException exc) {
-			 * exc.printStackTrace(); }
-			 * 
-			 * } });
-			 */
-			// new_game = true;
-			event.addAction(new ChangeStateInitAction(MAINMENU_STATE));
-			dummy.addComponent(event);
+			Entity dummy = new Entity("Dummy");			
+			Event loopEvent = new LoopEvent();	
+			loopEvent.addAction(new ChangeStateInitAction(MAINMENU_STATE));
+			dummy.addComponent(loopEvent);
 			entityManager.addEntity(stateID, dummy);
 		}
 
