@@ -1,7 +1,6 @@
 package de.tud.jsf.scrabble.ui.states;
 
-import java.util.LinkedList;
-import java.util.Random;
+
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -15,7 +14,6 @@ import org.newdawn.slick.state.StateBasedGame;
 import de.tud.jsf.scrabble.constants.GameParameters;
 import eea.engine.action.Action;
 import eea.engine.action.basicactions.ChangeStateAction;
-import eea.engine.action.basicactions.QuitAction;
 import eea.engine.component.Component;
 import eea.engine.component.render.ImageRenderComponent;
 import eea.engine.entity.Entity;
@@ -43,9 +41,10 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
     private final int CENTERY = WINDOW_HEIGHT / 2;
     private final int DISTANCE_BETWEEN_BUTTONS = 75;
     
+    
     ChangeNameButton[] playerBoxes;
 //    Entity start;
-//    Entity back;
+    DialogueButton back;
     
     PlayerSelectState(int sid){
     	stateID = sid;
@@ -53,10 +52,11 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
     }
     
     public void selectPlayer(ChangeNameButton playerSelectBox) {
+    	//JOptionPane textfield = new JOptionPane();
     	String name = playerSelectBox.getName();
-    	if (name == "") { // This box is empty, add new player
-    		numberOfPlayers++;
+    	if (name == "") { // This box is empty, add new player    		
     		name = "PLAYER";
+    		numberOfPlayers++;
     	}
     	else {
     		numberOfPlayers --;
@@ -68,7 +68,7 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
     	Players.resetPlayers();
 
     	if (numberOfPlayers <= 1) {
-    		statusBar = " Not enough players to start the game!";
+    		statusBar = "Not enough players to start the game!";
     		return false;
     	}
     	for (int i = 0; i < numberOfPlayers ; i ++) {
@@ -120,7 +120,7 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
 //    	back.setSize(new Vector2f(400/2,200/2));
 //    	if (!Launch.debug) back.addComponent(new ImageRenderComponent(new Image(DBOX)));    
     	
-    	DialogueButton back = new DialogueButton("back_button", new Vector2f(CENTERX + DISTANCE_BETWEEN_BUTTONS,WINDOW_HEIGHT - 100), "back");
+    	back = new DialogueButton("back_button", new Vector2f(CENTERX + DISTANCE_BETWEEN_BUTTONS,WINDOW_HEIGHT - 100), "back");
     	
     	ANDEvent backToMenu = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
     	Action backToMenuAction = new ChangeStateAction(Launch.MAINMENU_STATE);
@@ -172,7 +172,7 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
 		}	
 //		graphic.drawString("Players: " + numberOfPlayers, back.getPosition().getX(),back.getPosition().getY() + 70);
 		graphic.setColor(new Color(255,0,0));
-//		graphic.drawString(statusBar, back.getPosition().getX(),back.getPosition().getY() + 50);
+		graphic.drawString(statusBar, back.getPosition().getX(),back.getPosition().getY() + 50);
 	}
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {

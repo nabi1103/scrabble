@@ -25,7 +25,7 @@ public class HighscoreList {
 
 	public void addHighscore(Highscore highscore) {
 		highscores.add(highscore);
-		// sort();
+		sort();
 		if (highscores.size() > 10) {
 			highscores.remove(10);
 		}
@@ -109,20 +109,17 @@ public class HighscoreList {
 			return true;
 		}
 
-		// Last highscore entry
+
 		Highscore lastHighscore = highscores.get(9);
 
-		// If the result is -1, the new highscore is better
+
 		int result = comp.compare(hsc, lastHighscore);
 
-		// Better
-		if (result == -1) {
+		if (result == 1) 
 			return true;
-		}
-		// Worse
-		else {
+		else 
 			return false;
-		}
+		
 	}
 
 	public boolean hasHighscoreLoaded() {

@@ -14,7 +14,7 @@ public class ScrabbleTestsuiteMinimal {
 	public static Test suite() {
 		
 		TestSuite suite = new TestSuite("Student tests for Scrabble - Minimal");
-		//suite.addTest(new JUnit4TestAdapter(PlayerSelectTest.class));
+		suite.addTest(new JUnit4TestAdapter(PlayerSelectTest.class));
 		//suite.addTest(new JUnit4TestAdapter(PlacingLetterTest.class));
 		suite.addTest(new JUnit4TestAdapter(PlayButtonTest.class));
 		return suite;
