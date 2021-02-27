@@ -15,7 +15,6 @@ import de.tud.jsf.scrabble.tests.adapter.ScrabbleTestAdapterMinimal;
 
 public class UndoTest {
 	ScrabbleTestAdapterMinimal adapter;
-	Vector2f undoButtonPos;
 	@Before
 	public void setup() {
 		adapter = new ScrabbleTestAdapterMinimal();
@@ -25,21 +24,17 @@ public class UndoTest {
 		adapter.stopGame();
 	}
 	
-	public void enteringGameplayState() {
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
-		adapter.handleMousePressed(adapter.getNewgameButtonX(),adapter.getNewgameButtonY(),0,0);
+	public void enteringGameplayState() {		
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
+		adapter.handleMousePressed(adapter.getNewgameButtonPosition(),0,0);
 		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
-		for (int i = 0 ; i < adapter.getPlayerSelectFieldsX().size() ; i ++) {
-			int x = adapter.getPlayerSelectFieldsX().get(i);
-			int y = adapter.getPlayerSelectFieldsY().get(i);
-			adapter.handleMousePressed(x,y,0,0);
+		for (int i = 0 ; i < adapter.getPlayerSelectFieldsPosition().size() ; i ++) {
+			adapter.handleMousePressed(adapter.getPlayerSelectFieldsPosition().get(i),0,0);
 		}
-		adapter.handleMousePressed(adapter.getStartButtonX(),adapter.getStartButtonY(),0,0);
+		adapter.handleMousePressed(adapter.getStartButtonPosition(),0,0);
 		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getGameplayStateID());
 		assertTrue(adapter.getCurrentNumberOfPlayers() == 4);
-		undoButtonPos = adapter.getUndoButtonPosition();
-		assertTrue("Undo button not found!",undoButtonPos != null);
-		
+
 		
 	}
 	
@@ -60,8 +55,8 @@ public class UndoTest {
 		char[][] charGrid = adapter.getBoard();
 		String oldName = adapter.getNameOfCurrentPlayer();
 		assertTrue("Board is not empty at start!",isBoardEmpty(charGrid));
-		adapter.handleMousePressed(undoButtonPos,0,0);
-		assertTrue("Current round is not the same!",adapter.getCurrentRound() == 0);
+		adapter.handleMousePressed(adapter.getUndoButtonPosition(),0,0);
+		assertTrue("Current round is not the same!",adapter.getCurrentRound() == 1);
 		assertTrue("Current player is not the same",adapter.getNameOfCurrentPlayer() == oldName);
 		assertTrue("Error when clicking undo while board is empty",isBoardEmpty(charGrid));	
 		adapter.stopGame();
@@ -83,7 +78,7 @@ public class UndoTest {
 		adapter.handleMousePressed(adapter.getFieldPosition(12,3),0,0);
 		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
 		adapter.handleMousePressed(adapter.getFieldPosition(12,4),0,0);
-		adapter.handleMousePressed(undoButtonPos,0,0);
+		adapter.handleMousePressed(adapter.getUndoButtonPosition(),0,0);
 		assertTrue("Board is not the same as start of round!",isBoardEmpty(charGrid));					
 		assertTrue("Inventory size after clicking undo not correct!",adapter.getCurrentInventorySize() == 7);
 		for (Vector2f letterPos : adapter.getLettersInInventoryPosition()) {
@@ -109,12 +104,12 @@ public class UndoTest {
 		for (Vector2f letterPos : adapter.getLettersInInventoryPosition()) {
 			inventoryBefore.add(adapter.getLetter(letterPos));
 		}
-		adapter.handleMousePressed(undoButtonPos,0,0);
+		adapter.handleMousePressed(adapter.getUndoButtonPosition(),0,0);
 		assertTrue("Board is not the same as start of the round after clicking undo!",adapter.getBoard()[7][7] != '\u0000'
 				&& adapter.getBoard()[7][8] != '\u0000');
 		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
 		adapter.handleMousePressed(adapter.getFieldPosition(5,2),0,0);		
-		adapter.handleMousePressed(undoButtonPos,0,0);
+		adapter.handleMousePressed(adapter.getUndoButtonPosition(),0,0);
 		charGrid = adapter.getBoard();
 		for (int i = 0 ; i < charGrid.length ; i ++) {
 			for (int j = 0 ; j < charGrid.length ; j++) {
@@ -130,6 +125,20 @@ public class UndoTest {
 		adapter.stopGame();
 		
 	}
+	
+	@Test
+	public void undoTest4() {
+		// TUTOR
+		adapter.initGame();
+		enteringGameplayState();
+		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);		
+		adapter.handleMousePressed(adapter.getUndoButtonPosition(),0,0);
+		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);
+		adapter.handleMousePressed(adapter.getFieldPosition(8,8),0,0);
+		assertTrue("After clicking undo the letter currently being picked up should also be dropped",isBoardEmpty(adapter.getBoard()));
+	}
+	
+	
 	
 	
 }

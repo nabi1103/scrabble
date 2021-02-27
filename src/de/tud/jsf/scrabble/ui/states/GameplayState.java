@@ -101,10 +101,10 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	private ArrayList<Tile> last_player_newTilesThisTurn = new ArrayList<>();
 
 	// Trade button
-	Vector2f trade_pos = new Vector2f(880, 180);
-	private DialogueButton trade = new DialogueButton("trade_button", trade_pos, "trade");
+	Vector2f trade_pos;
+	private DialogueButton trade;
 	Vector2f show_pos = new Vector2f(825, 510);
-	private DialogueButton show = new DialogueButton("show_button", show_pos, "show");
+	private DialogueButton show;
 
 	private ArrayList<String> traded_letter = new ArrayList<String>();
 	private boolean trading = false; // If currently trading -> can't put new tiles to the board
@@ -222,6 +222,8 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		check.setVisible(false);
 
 		// Trade button
+		trade_pos = new Vector2f(880, 180);
+		trade = new DialogueButton("trade_button", trade_pos, "trade");
 		if (!Launch.debug)
 			trade.addImageComponent();
 		entityManager.addEntity(stateID, trade);
@@ -229,7 +231,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		
 		// Toggle Show Button
 
-		show = new DialogueButton("check_button", show_pos, "show");
+		show = new DialogueButton("show_button", show_pos, "show");
 		show.addImageComponent();
 		entityManager.addEntity(stateID, show);
 		triggerShow(show);
@@ -241,7 +243,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			test.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/grey_boxCross.png")));
 		test.setSize(new Vector2f(38, 36));
 		entityManager.addEntity(stateID, test);
-		triggerUndo(undo);
+		//triggerUndo(undo);
 
 		ANDEvent test_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
 		test_event.addAction(new Action() {
@@ -249,6 +251,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
 				System.out.println("Current turn: " + turn);
 				System.out.println("Current player: " + displayPlayerID);
+				System.out.println("Bag size: " + bag_of_letters.size());
 				for (Player p : Players.getPlayers()) {
 					System.out.println("Player " + p.getName() + "(" + p.getID() + ")" + ": " + p.getScore());
 					System.out.println(p.getLetters());
@@ -298,6 +301,9 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			// Initialize variables
 			consecutivePasses = 0;
 		}
+		current_total_score = "";
+		status_text = "";
+		warning_text = "";
 
 	}
 
@@ -310,7 +316,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 				// Check if the rules for the first turn is not broken; if that is the case, the
 				// play is invalid and the player must redo their moves
 				if (trading) {
-					warning_text = "You can not commit while there are letters in the trade zone";
+					warning_text = "You can not click \"Play\" while there are letters in the trade zone";
 					return;
 				}
 				if (newTilesThisTurn.isEmpty()) { // PASS
@@ -405,7 +411,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 						turn_begin_state.clear();
 
 						last_player.setScore(last_player.getScore() - last_player_added_point);
-						warning_text = "Check complete. " + w.getValue() + " was not accepted. " + last_player.getName()
+						warning_text = "Check complete. " + w.getValue() + " was not accepted. " + "Player " + last_player.getName()
 								+ "'s score has been reduced to " + last_player.getScore() + ".";
 						for (Letter l : last_player_used_letters) {
 							last_player.addLetter(l.getID());
@@ -470,6 +476,10 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 	// TRADE BUTTON
 	public void triggerTrade(DialogueButton button) {
+		if (traded_letter.size() > bag_of_letters.size()) {
+			warning_text = "There aren't enough letters left in the bag to do a trade!";
+			return;
+		}
 		if (advanced_trade) {
 			Action change_state = new ChangeStateAction(Launch.CE_STATE);
 			ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
@@ -516,16 +526,24 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		Action clickOnButton = new Action() {
 			@Override
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
-				boolean is_visible = current_display_letters.get(0).isVisible();
-				current_display_letters.forEach((l) -> {
-					l.setVisible(!is_visible);
-				});
+				if (!current_display_letters.isEmpty()) {
+					boolean is_visible = current_display_letters.get(0).isVisible();
+					current_display_letters.forEach((l) -> {
+						l.setVisible(!is_visible);
+					});
+				}				
+				tmp_letter = null;
+				move_letter = false;
+				status_text = "";
 				if(button.getType() == "show") {
 					button.setType("hide");
 					button.addImageComponent();
+					//letter_shown = !letter_shown;
 				} else if (button.getType() == "hide") {
+					
 					button.setType("show");
 					button.addImageComponent();
+					//letter_shown = !letter_shown;
 				}
 			}			
 		};
@@ -539,9 +557,10 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		Action clickOnLetter = new Action() {
 			@Override
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
-				status_text = ("Picked " + l.getValue());
 				if (!clickable)
 					return;
+				status_text = ("Picked " + l.getValue());
+				
 				warning_text = "";
 				if (move_letter) {
 					tmp_letter = l;
@@ -622,7 +641,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 				char value = new_letter.getValue();
 				Character return_value = '\u0000';
 
-				if (value == '_') {
+				if (value == '_' && !Launch.debug) {
 					Character[] options = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
 							'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
 					return_value = (Character) JOptionPane.showInputDialog(null,
@@ -637,6 +656,10 @@ public class GameplayState extends BasicGameState implements GameParameters {
 						value = Character.toUpperCase(return_value);
 						if (!Launch.debug)new_letter.addBlankImageComponent(return_value);
 					}
+				}
+				// This part is for the tests to work
+				if (value == '_' && Launch.debug) {
+					value = 'A';
 				}
 
 				char_grid[x][y] = value;
@@ -1043,13 +1066,14 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			}
 
 			JFrame frame = new JFrame("");
-			JOptionPane.showMessageDialog(frame, winningMessage, "Game end!", 1);
+			if (!Launch.debug)JOptionPane.showMessageDialog(frame, winningMessage, "Game end!", 1);
 			Highscore h = new Highscore(sortedPlayers.get(0).getName(), sortedPlayers.get(0).getScore(), turn - 1);
-			if (HighscoreList.getInstance().isNewHighscore(h, new HighscoreComparator())) {
+			if (HighscoreList.getInstance().isNewHighscore(h, new HighscoreComparator()) && !Launch.debug) {
 				String name = JOptionPane.showInputDialog(frame, "Give winning player name:","New highscore",JOptionPane.QUESTION_MESSAGE);
 				if (name != null) h = new Highscore(name,sortedPlayers.get(0).getScore(), turn -1);
 				HighscoreList.getInstance().addHighscore(h);
 			}
+				
 			Entity dummy = new Entity("Dummy");			
 			Event loopEvent = new LoopEvent();	
 			loopEvent.addAction(new ChangeStateInitAction(MAINMENU_STATE));
@@ -1060,6 +1084,9 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	}
 
 	public void nextTurn() {
+		current_total_score = "";
+		tmp_letter = null;
+		move_letter = false;
 		Player currentPlayer = Players.currentPlayer;
 		// Increase total turn count
 		if (trading && turn == 0) {
@@ -1070,6 +1097,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		
 		show.setType("show");
 		show.addImageComponent();
+		status_text = "";
 
 		// Update score for current player
 		last_player_added_point = current_words.stream().mapToInt((w) -> w.getScore()).sum();
@@ -1128,15 +1156,19 @@ public class GameplayState extends BasicGameState implements GameParameters {
 				last_player_turn_begin_char_grid[i][j] = turn_begin_char_grid[i][j];
 			}
 		}
+		gameFinish();
 		// Go to next player
 		currentPlayer = Players.nextPlayer();
 		displayPlayerID = currentPlayer.getName();
 
 		// Add letters to next player if he doesn't have enough
 		while (currentPlayer.getLetters().size() < PLAYER_INVENTORY_SIZE) {
-			String to_add = bag_of_letters.get(new Random().nextInt(bag_of_letters.size()));
-			currentPlayer.addLetter(to_add);
-			bag_of_letters.remove(to_add);
+			if (!bag_of_letters.isEmpty()) {
+				String to_add = bag_of_letters.get(new Random().nextInt(bag_of_letters.size()));
+				currentPlayer.addLetter(to_add);
+				bag_of_letters.remove(to_add);
+			}
+			else break;
 		}
 
 		// Clear multiplier (?)
@@ -1165,11 +1197,13 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		renderPlayerLetter(currentPlayer);
 		renderTradedLetter();
 
-		gameFinish();
+		
 	}
 
 	public void undo() {
 		entityManager.clearEntitiesFromState(stateID);
+		tmp_letter = null;
+		move_letter = false;
 
 		current_words.clear();
 		used_letters.clear();
@@ -1199,6 +1233,8 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		}
 		renderPlayerLetter(Players.currentPlayer);
 		clickable = true;
+		status_text = "";
+		current_total_score = "";
 	}
 
 	public void trade() {
@@ -1270,12 +1306,15 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			}
 		}
 		graphic.setColor(new Color(0, 0, 0));
-		graphic.drawString(status_text, 750, 350);
+		graphic.drawString(status_text, 700, 350);
 
 		graphic.drawString("Current Score: " + current_total_score, 700, 300);
+		graphic.drawString("Letters in bag: " + bag_of_letters.size(),700,250);
 
 		graphic.setColor(new Color(255, 0, 0));
 		graphic.drawString(warning_text, 90, 10);
+		
+		
 
 	}
 

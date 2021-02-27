@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.newdawn.slick.geom.Vector2f;
 
+import de.tud.jsf.scrabble.model.highscore.Highscore;
+import de.tud.jsf.scrabble.model.highscore.HighscoreList;
+import de.tud.jsf.scrabble.ui.entity.DialogueButton;
 import de.tud.jsf.scrabble.ui.entity.Lexicon;
 import eea.engine.entity.Entity;
 import eea.engine.entity.StateBasedEntityManager;
@@ -37,24 +40,38 @@ public class ScrabbleTestAdapterExtended1 extends ScrabbleTestAdapterMinimal {
 	}
 	
 	public void addHighscore(String name, int score , int round) {
-		
+		// TODO
+		HighscoreList.getInstance().addHighscore(new Highscore(name,score,round));
 	}
 	
 	public void resetHighscore() {
-		
+		// TODO
+		HighscoreList.getInstance().getHighscores().clear();
 	}
 	
 	public String getPlayerNameInHighscore(int pos) {
-		return null;
+		// TODO
+		return HighscoreList.getInstance().getHighscores().get(pos).getName();
 	}
 	
 	public int getScoreOfPlayerInHighscore(int pos) {
-		return -1;
+		// TODO
+		return HighscoreList.getInstance().getHighscores().get(pos).getScore();
 	}
 	
-	public int getHighscoreCount() {
-		return -1;
+	public int getRoundOfPlayerInHighscore(int pos) {
+		// TODO
+		return HighscoreList.getInstance().getHighscores().get(pos).getRound();
 	}
+	
+	public int getHighscoreListSize() {
+		// TODO
+		return HighscoreList.getInstance().getHighscores().size();
+	}
+	
+	
+	
+	
 	
 	
 	

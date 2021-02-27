@@ -29,11 +29,9 @@ public class PlayerSelectTest {
 	@Test
 	public void testInitGame() {
 		adapter.initGame();
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
-		adapter.handleMousePressed(adapter.getNewgameButtonX(),adapter.getNewgameButtonY(),0,0);
-		int x = adapter.getNewgameButtonX();
-		int y = adapter.getNewgameButtonY();
-		assertTrue("" + x + "," + y,adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
+		adapter.handleMousePressed(adapter.getNewgameButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
 		adapter.stopGame();
 		
 	}
@@ -41,66 +39,60 @@ public class PlayerSelectTest {
 	@Test
 	public void testBackButton() {
 		adapter.initGame();
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
-		adapter.handleMousePressed(adapter.getNewgameButtonX(),adapter.getNewgameButtonY(),0,0);
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
-		adapter.handleMousePressed(adapter.getBackButtonX(),adapter.getBackButtonY(),0,0);
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
+		adapter.handleMousePressed(adapter.getNewgameButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
+		adapter.handleMousePressed(adapter.getBackButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
 		adapter.stopGame();
 	}
 	
 	@Test
 	public void testSelectPlayer() {
 		adapter.initGame();
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
-		adapter.handleMousePressed(adapter.getNewgameButtonX(),adapter.getNewgameButtonY(),0,0);
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
-		for (int i = 0 ; i < adapter.getPlayerSelectFieldsX().size() ; i ++) {
-			int x = adapter.getPlayerSelectFieldsX().get(i);
-			int y = adapter.getPlayerSelectFieldsY().get(i);
-			adapter.handleMousePressed(x,y,0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
+		adapter.handleMousePressed(adapter.getNewgameButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
+		for (int i = 0 ; i < adapter.getPlayerSelectFieldsPosition().size() ; i ++) {
+			adapter.handleMousePressed(adapter.getPlayerSelectFieldsPosition().get(i),0,0);
 		}
-		adapter.handleMousePressed(adapter.getStartButtonX(),adapter.getStartButtonY(),0,0);
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getGameplayStateID());
-		assertTrue(adapter.getCurrentNumberOfPlayers() == 4);
+		adapter.handleMousePressed(adapter.getStartButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getGameplayStateID());
+		assertTrue("Number of players should be 4 after selecting",adapter.getCurrentNumberOfPlayers() == 4);
 		adapter.stopGame();
 				
 	}
 	@Test
 	public void testSelectPlayerDoubleClick() {
 		adapter.initGame();
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
-		adapter.handleMousePressed(adapter.getNewgameButtonX(),adapter.getNewgameButtonY(),0,0);
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
-		for (int i = 0 ; i < adapter.getPlayerSelectFieldsX().size() ; i ++) {
-			int x = adapter.getPlayerSelectFieldsX().get(i);
-			int y = adapter.getPlayerSelectFieldsY().get(i);
-			adapter.handleMousePressed(x,y,0,0);
-			if (i == 0) adapter.handleMousePressed(x,y,0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
+		adapter.handleMousePressed(adapter.getNewgameButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
+		for (int i = 0 ; i < adapter.getPlayerSelectFieldsPosition().size() ; i ++) {
+			adapter.handleMousePressed(adapter.getPlayerSelectFieldsPosition().get(i),0,0);
 		}
-		adapter.handleMousePressed(adapter.getStartButtonX(),adapter.getStartButtonY(),0,0);
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getGameplayStateID());
-		assertTrue(adapter.getCurrentNumberOfPlayers() == 3);
+		adapter.handleMousePressed(adapter.getPlayerSelectFieldsPosition().get(2),0,0);
+		adapter.handleMousePressed(adapter.getStartButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getGameplayStateID());
+		assertTrue("Number of players should be 3 after selecting",adapter.getCurrentNumberOfPlayers() == 3);
 		adapter.stopGame();
 				
 	}
 	@Test
 	public void testSelectPlayerError() {
 		adapter.initGame();
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
-		adapter.handleMousePressed(adapter.getNewgameButtonX(),adapter.getNewgameButtonY(),0,0);
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
-		for (int i = 0 ; i < adapter.getPlayerSelectFieldsX().size() ; i ++) {
-			int x = adapter.getPlayerSelectFieldsX().get(i);
-			int y = adapter.getPlayerSelectFieldsY().get(i);
-			adapter.handleMousePressed(x,y,0,0);
-			if (i != 0) adapter.handleMousePressed(x,y,0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
+		adapter.handleMousePressed(adapter.getNewgameButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
+		for (int i = 0 ; i < adapter.getPlayerSelectFieldsPosition().size() ; i ++) {			
+			adapter.handleMousePressed(adapter.getPlayerSelectFieldsPosition().get(i),0,0);
+			if (i != 0) adapter.handleMousePressed(adapter.getPlayerSelectFieldsPosition().get(i),0,0);
 		}
-		adapter.handleMousePressed(adapter.getStartButtonX(),adapter.getStartButtonY(),0,0);
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
-		adapter.handleMousePressed(adapter.getPlayerSelectFieldsX().get(0),adapter.getPlayerSelectFieldsY().get(0),0,0);
-		adapter.handleMousePressed(adapter.getStartButtonX(),adapter.getStartButtonY(),0,0);
-		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
+		adapter.handleMousePressed(adapter.getStartButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
+		adapter.handleMousePressed(adapter.getPlayerSelectFieldsPosition().get(0),0,0);
+		adapter.handleMousePressed(adapter.getStartButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
 		adapter.stopGame();				
 	}
 	
