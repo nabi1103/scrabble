@@ -31,13 +31,15 @@ public class PlacingLetterTest {
 	}
 	
 	public void enteringGameplayState() {		
-		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
-		adapter.handleMousePressed(adapter.getNewgameButtonPosition(),0,0);
+		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getMainMenuStateID());
+		adapter.handleMousePressed(adapter.getNewgameButtonX(),adapter.getNewgameButtonY(),0,0);
 		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getPlayerSelectStateID());
-		for (int i = 0 ; i < adapter.getPlayerSelectFieldsPosition().size() ; i ++) {
-			adapter.handleMousePressed(adapter.getPlayerSelectFieldsPosition().get(i),0,0);
+		for (int i = 0 ; i < adapter.getPlayerSelectFieldsX().size() ; i ++) {
+			int x = adapter.getPlayerSelectFieldsX().get(i);
+			int y = adapter.getPlayerSelectFieldsY().get(i);
+			adapter.handleMousePressed(x,y,0,0);
 		}
-		adapter.handleMousePressed(adapter.getStartButtonPosition(),0,0);
+		adapter.handleMousePressed(adapter.getStartButtonX(),adapter.getStartButtonY(),0,0);
 		assertTrue(adapter.getStateBasedGame().getCurrentStateID() == adapter.getGameplayStateID());
 		assertTrue(adapter.getCurrentNumberOfPlayers() == 4);
 		
@@ -62,21 +64,22 @@ public class PlacingLetterTest {
 		enteringGameplayState();
 		assertTrue("Player does not have 7 letters at the start!",adapter.getCurrentInventorySize() == 7);
 		assertTrue("Board is not empty at start!",isBoardEmpty(adapter.getBoard()));
+		
 		List<Vector2f> inventory = adapter.getLettersInInventoryPosition();	
 		Vector2f letterPos = inventory.get(0);
 		Vector2f fieldPos = adapter.getFieldPosition(testRow,testColumn);
 		char letter = adapter.getLetter(letterPos);
-		if (adapter.isLetterBlank(letter)) letter = 'A';
 		adapter.handleMousePressed(fieldPos,0,0);
 		assertTrue("Board should not be changed when clicking on while not holding a letter!",isBoardEmpty(adapter.getBoard()));
 		adapter.handleMousePressed(letterPos,0,0);
-		adapter.handleMousePressed(fieldPos,0,0);
+		adapter.handleMousePressed(fieldPos,0,0);		
 		for (int i = 0 ; i < adapter.getBoard().length ; i ++) {
 			for (int j = 0 ; j < adapter.getBoard().length ; j ++) {
 				if (i == testRow-1 && j == testColumn-1) {
-					assertEquals("Wrong letter on the board!",adapter.getBoard()[i][j],  letter);
+					if (adapter.isLetterBlank(letterPos)) assertTrue(adapter.getBoard()[i][j] != '\u0000');
+					else assertTrue(adapter.getBoard()[i][j] == letter);
 				}
-				else assertTrue("Field " + i +"," + j + "should be empty",adapter.getBoard()[i][j] == '\u0000');
+				else assertTrue(""+adapter.getBoard()[i][j],adapter.getBoard()[i][j] == '\u0000');
 			}
 		}
 		adapter.stopGame();
@@ -95,15 +98,14 @@ public class PlacingLetterTest {
 		Vector2f letterPos = inventory.get(0);
 		Vector2f fieldPos = adapter.getFieldPosition(testRow,testColumn);
 		char letter = adapter.getLetter(letterPos);
-		if (adapter.isLetterBlank(letter)) letter = 'A';
 		adapter.handleMousePressed(letterPos,0,0);
 		adapter.handleMousePressed(fieldPos,0,0);
 		for (int i = 0 ; i < adapter.getBoard().length ; i ++) {
 			for (int j = 0 ; j < adapter.getBoard().length ; j ++) {
 				if (i == testRow-1 && j == testColumn-1) {					 
-					assertEquals("Wrong letter on the board!",adapter.getBoard()[i][j],  letter);
+					assertTrue(adapter.getBoard()[i][j] == letter);
 				}
-				else assertEquals("Field " + i +"," + j + "should be empty",adapter.getBoard()[i][j],  '\u0000');
+				else assertTrue(adapter.getBoard()[i][j] == '\u0000');
 			}
 		}
 		
@@ -116,7 +118,7 @@ public class PlacingLetterTest {
 				if (i == testRow-1 && j == testColumn-1)  {
 					assertTrue("Placing a letter on the board while another letter is there should not be possible!",adapter.getBoard()[i][j] == letter);
 				}
-				else assertTrue("Field " + i +"," + j + "should be empty",adapter.getBoard()[i][j] == '\u0000');
+				else assertTrue(adapter.getBoard()[i][j] == '\u0000');
 			}
 		}
 		adapter.stopGame();
@@ -135,15 +137,16 @@ public class PlacingLetterTest {
 		Vector2f letterPos = inventory.get(0);
 		Vector2f fieldPos = adapter.getFieldPosition(testRow,testColumn);
 		char letter = adapter.getLetter(letterPos);
-		if (adapter.isLetterBlank(letter)) letter = 'A';
+		
 		adapter.handleMousePressed(letterPos,0,0);
 		adapter.handleMousePressed(fieldPos,0,0);
 		for (int i = 0 ; i < adapter.getBoard().length ; i ++) {
 			for (int j = 0 ; j < adapter.getBoard().length ; j ++) {
 				if (i == testRow-1 && j == testColumn-1) {
-					assertEquals("Wrong letter on the board!",adapter.getBoard()[i][j], letter);
+					if (adapter.isLetterBlank(letterPos)) assertTrue(adapter.getBoard()[i][j] != '\u0000');
+					else assertTrue(adapter.getBoard()[i][j] == letter);
 				}
-				else assertTrue("Field " + i +"," + j + "should be empty",adapter.getBoard()[i][j] == '\u0000');
+				else assertTrue(adapter.getBoard()[i][j] == '\u0000');
 			}
 		}
 		inventory = adapter.getLettersInInventoryPosition();	
@@ -175,12 +178,11 @@ public class PlacingLetterTest {
 		adapter.handleMousePressed(letterPos1,0,0);
 		adapter.handleMousePressed(letterPos2,0,0);
 		char letter = adapter.getLetter(letterPos2);
-		if (adapter.isLetterBlank(letter)) letter = 'A';
 		adapter.handleMousePressed(fieldPos,0,0);
 		for (int i = 0 ; i < adapter.getBoard().length ; i ++) {
 			for (int j = 0 ; j < adapter.getBoard().length ; j ++) {
-				if (i == testRow-1 && j == testColumn-1) assertTrue("Field " + i +"," + j + "should have" + letter,adapter.getBoard()[i][j] == letter);
-				else assertTrue("Field " + i +"," + j + "should be empty",adapter.getBoard()[i][j] == '\u0000');
+				if (i == testRow-1 && j == testColumn-1) assertTrue(adapter.getBoard()[i][j] == letter);
+				else assertTrue(adapter.getBoard()[i][j] == '\u0000');
 			}
 		}
 		adapter.stopGame();

@@ -15,7 +15,6 @@ import eea.engine.action.Action;
 import eea.engine.entity.Entity;
 import eea.engine.entity.StateBasedEntityManager;
 import eea.engine.test.TestAppGameContainer;
-import de.tud.jsf.scrabble.ui.entity.DialogueButton;
 import de.tud.jsf.scrabble.ui.entity.Letter;
 import de.tud.jsf.scrabble.ui.states.GameplayState;
 
@@ -85,21 +84,7 @@ public class ScrabbleTestAdapterMinimal {
 		return GameParameters.MAINMENU_STATE;
 	}
 	
-	// MAIN MENU SECTION
-	
-	public Vector2f getNewgameButtonPosition() {
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getMainMenuStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "new_game_button") {
-				return e.getPosition();
-			}
-		}
-		return null;
-	}
-	
-	/*public int getNewgameButtonX() {
+	public int getNewgameButtonX() {
 		// TODO
 		List<Entity> entities = new ArrayList<Entity>();
 		if (scrabble != null) 
@@ -123,7 +108,7 @@ public class ScrabbleTestAdapterMinimal {
 			}
 		}
 		return -1;
-	}*/
+	}
 	public int getGameplayStateID() {
 		// TODO
 		return GameParameters.GAMEPLAY_STATE;
@@ -183,31 +168,6 @@ public class ScrabbleTestAdapterMinimal {
 			}
 		}
 		return null;
-	}
-	
-	public Vector2f getShowButtonPosition() {
-		// TODO
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "show_button") {
-				return e.getPosition();
-			}
-		}
-		return null;
-	}
-	
-	public boolean areLettersHidden() {
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "show_button") {
-				if ((((DialogueButton)e).getType()) == "show") return true;
-			}
-		}
-		return false;
 	}
 	
 	/*public int getPlayButtonX() {
@@ -289,15 +249,10 @@ public class ScrabbleTestAdapterMinimal {
 			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
 		for (Entity e : entities) {
 			if (e instanceof Letter) {
-				char letter = ((Letter) e).getValue();
-				if (!((Letter) e).isOnBoard() && !isLetterBlank(letter)) res.add(e.getPosition());
+				if (!((Letter) e).isOnBoard() && !isLetterBlank(e.getPosition())) res.add(e.getPosition());
 			}
 		}
 		return res;
-	}
-	
-	public int getRemainingLettersInBag() {
-		return GameplayState.bag_of_letters.size();
 	}
 	
 	/*public List<Integer> getLettersInInventoryX() {
@@ -338,8 +293,9 @@ public class ScrabbleTestAdapterMinimal {
 		return '\u0000';
 	}
 	
-	public boolean isLetterBlank(char letter) {
-		// TODO
+	public boolean isLetterBlank(Vector2f pos) {
+		// DELETE THIS?
+		char letter = getLetter(pos);
 		if (letter == '_') return true;
 		return false;
 	}
@@ -355,23 +311,17 @@ public class ScrabbleTestAdapterMinimal {
 		// TODO
 		return GameParameters.PLAYER_SELECT_STATE;
 	}
-	
-	
-	public Vector2f getStartButtonPosition() {
+	public int getStartButtonX() {
+		// TODO
 		List<Entity> entities = new ArrayList<Entity>();
 		if (scrabble != null) 
 			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
 		for (Entity e : entities) {
 			if (e.getID() == "start_button") {
-				return e.getPosition();
+				return (int)e.getPosition().getX();
 			}
 		}
-		return null;
-	}
-
-	/*public int getStartButtonX() {
-		// TODO
-		
+		return -1;
 	}
 	
 	public int getStartButtonY() {
@@ -385,20 +335,9 @@ public class ScrabbleTestAdapterMinimal {
 			}
 		}
 		return -1;
-	}*/
-	
-	public Vector2f getBackButtonPosition() {
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "back_button") {
-				return e.getPosition();
-			}
-		}
-		return null;
 	}
-	/*public int getBackButtonX() {
+	
+	public int getBackButtonX() {
 		// TODO
 		List<Entity> entities = new ArrayList<Entity>();
 		if (scrabble != null) 
@@ -422,22 +361,9 @@ public class ScrabbleTestAdapterMinimal {
 			}
 		}
 		return -1;
-	}*/
-	
-	public List<Vector2f> getPlayerSelectFieldsPosition() {
-		ArrayList<Vector2f> result = new ArrayList<Vector2f>();
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "PlayerSelect") {
-				result.add(e.getPosition());
-			}
-		}
-		return result;
 	}
 	
-	/*public List<Integer> getPlayerSelectFieldsX() {
+	public List<Integer> getPlayerSelectFieldsX() {
 		// TODO
 		ArrayList<Integer> result = new ArrayList<Integer>();
 		List<Entity> entities = new ArrayList<Entity>();
@@ -462,7 +388,7 @@ public class ScrabbleTestAdapterMinimal {
 			}
 		}
 		return result;
-	}*/
+	}
 	
 	public void handleMousePressed(int x , int y,int delta,int input) {
 		if (scrabble != null && app != null) {
