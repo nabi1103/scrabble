@@ -524,10 +524,10 @@ public class CEState extends BasicGameState implements GameParameters {
 		for (int i = 0; i < players_ui.length; i++) {
 			if (players_ui[i] == current_player) {
 				graphic.setColor(new Color(255, 0, 0));
-				graphic.drawString("Player " + players_ui[i] + ": " + players_ui_score[i], 90 + 160 * i, 50);
+				graphic.drawString("Player " +  Players.getPlayers().get(i).getName() + ": " + players_ui_score[i], 90 + 160 * i, 50);
 			} else {
 				graphic.setColor(new Color(0, 0, 0));
-				graphic.drawString("Player " + players_ui[i] + ": " + players_ui_score[i], 90 + 160 * i, 50);
+				graphic.drawString("Player " + Players.getPlayers().get(i).getName() + ": " + players_ui_score[i], 90 + 160 * i, 50);
 			}
 		}
 
