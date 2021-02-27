@@ -37,16 +37,8 @@ public class DialogueButton extends Entity implements GameParameters{
 		this.type = t;
 	}
 	
-<<<<<<< HEAD
-	public ImageRenderComponent addImageComponent() {		
-=======
-	public DialogueBox getDialogueBox() {
-		return parent;
-	}
-	
 	public ImageRenderComponent addImageComponent() {
 		if (!Launch.debug)
->>>>>>> 596004564e331a351db39d98885a56ca7b1618db
 		switch (this.getType()) {
 		case "confirm":
 			try {
