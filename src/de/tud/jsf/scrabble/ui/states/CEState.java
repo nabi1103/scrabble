@@ -35,6 +35,7 @@ import eea.engine.event.basicevents.MouseEnteredEvent;
 
 import de.tud.jsf.scrabble.constants.GameParameters;
 import de.tud.jsf.scrabble.model.player.Players;
+import de.tud.jsf.scrabble.ui.entity.DialogueButton;
 import de.tud.jsf.scrabble.ui.entity.Letter;
 
 public class CEState extends BasicGameState implements GameParameters {
@@ -43,26 +44,33 @@ public class CEState extends BasicGameState implements GameParameters {
 	private StateBasedEntityManager entityManager;
 
 	private Entity left_bound, right_bound, bar;
-	private ArrayList<Entity> bag_of_letters_ce = new ArrayList<Entity>();
+	private ArrayList<Letter> bag_of_letters_ce = new ArrayList<Letter>();
+	private ArrayList<Letter> falling_letters = new ArrayList<Letter>();
+	private ArrayList<Letter> dead_letters = new ArrayList<Letter>();
+	private ArrayList<Letter> redundant = new ArrayList<Letter>();
 
-	private ArrayList<String> taken_letter = new ArrayList<String>();
+	private ArrayList<String> taken_letters = new ArrayList<String>();
 
 	private Timer timer;
 	private ArrayList<Entity> current_display_taken_letter = new ArrayList<Entity>();
-	
+
 	// Button
 	private boolean return_clickable = false;
 	static boolean play_clickable = false;
-	
-	private Entity return_button;
-	
+	private boolean difficulty_clickable = true;
+
+	private DialogueButton return_button;
+	Vector2f difficulty_pos = new Vector2f(825, 180);
+	private DialogueButton difficulty = new DialogueButton("difficulty_button", difficulty_pos, "easy");
+	private boolean difficult = false;
+
 	// Gameplay
 	static int limit;
 	static int current_player;
-	
+
 	// Warning text
 	static String warning_text = "";
-	
+
 	CEState(int sid) {
 		this.stateID = sid;
 		entityManager = StateBasedEntityManager.getInstance();
@@ -77,14 +85,12 @@ public class CEState extends BasicGameState implements GameParameters {
 
 		// Hanging letters
 		GameplayState.bag_of_letters.forEach((letter) -> {
-			renderDroppableLetter(letter);
+			renderHangingLetter(letter);
 		});
 
 		// Start button
-		Entity play_button = new Entity("test_count");
-
-		play_button.setPosition(new Vector2f(770, 120));
-		play_button.addComponent(new ImageRenderComponent(new Image(START_BUTTON)));
+		DialogueButton play_button = new DialogueButton("play_button", new Vector2f(770, 120), "start");
+		play_button.addImageComponent();
 
 		ANDEvent play_start = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
 		Action click_action = new Action() {
@@ -94,9 +100,8 @@ public class CEState extends BasicGameState implements GameParameters {
 					return;
 
 				play_clickable = false;
+				difficulty_clickable = false;
 				warning_text = "";
-
-				ArrayList<Entity> redundant = new ArrayList<Entity>();
 
 				bag_of_letters_ce.forEach((letter) -> {
 					if (!GameplayState.bag_of_letters.contains(letter.getID())) {
@@ -106,7 +111,6 @@ public class CEState extends BasicGameState implements GameParameters {
 
 				redundant.forEach((letter) -> {
 					bag_of_letters_ce.remove(letter);
-					entityManager.removeEntity(stateID, letter);
 				});
 
 				timer = new Timer();
@@ -114,10 +118,11 @@ public class CEState extends BasicGameState implements GameParameters {
 				timer.scheduleAtFixedRate(new TimerTask() {
 					@Override
 					public void run() {
-						Entity l = bag_of_letters_ce.get(new Random().nextInt(bag_of_letters_ce.size()));
+						Letter l = bag_of_letters_ce.get(new Random().nextInt(bag_of_letters_ce.size()));
 						bag_of_letters_ce.remove(l);
+						falling_letters.add(l);
 						dropping(l);
-						if (taken_letter.size() >= limit || bag_of_letters_ce.size() <= 0) {
+						if (taken_letters.size() >= limit || bag_of_letters_ce.size() <= 0) {
 							stopCEGame();
 							warning_text = "Minigame complete. Click the RETURN button to return to the game!!!";
 						}
@@ -132,34 +137,18 @@ public class CEState extends BasicGameState implements GameParameters {
 		entityManager.addEntity(stateID, play_button);
 
 		// Return to Gameplay State
-		return_button = new Entity("return");
+		return_button = new DialogueButton("return_button", new Vector2f(880, 120), "return");
+		return_button.addImageComponent();
 
-		return_button.setPosition(new Vector2f(880, 120));
-		return_button.addComponent(new ImageRenderComponent(new Image(RETURN_BUTTON)));
-
-//		ANDEvent return_to_gameplay_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
-//		Action new_Game_Action = new ChangeStateAction(Launch.GAMEPLAY_STATE);
-//		return_to_gameplay_event.addAction(new Action() {
-//			@Override
-//			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
-//				if (!return_clickable) {
-//					warning_text = "You must complete the CE Minigame before returning to the Scrabble board.";
-//					return_to_gameplay_event.removeAction(new_Game_Action);
-//					return_button.removeComponent(return_to_gameplay_event);
-//					return;
-//				}
-//				taken_letter.clear();
-//				current_display_taken_letter.forEach((l) -> {
-//					entityManager.removeEntity(stateID, l);
-//				});
-//				warning_text = "";
-//				return_clickable = false;
-//			}
-//		});
-//		return_to_gameplay_event.addAction(new_Game_Action);
-//		return_button.addComponent(return_to_gameplay_event);
 		triggerReturn(return_button);
 		entityManager.addEntity(stateID, return_button);
+
+		// Difficulty button
+
+		difficulty = new DialogueButton("difficulty_button", difficulty_pos, "easy");
+		difficulty.addImageComponent();
+		entityManager.addEntity(stateID, difficulty);
+		triggerDifficulty(difficulty);
 
 		// Border
 		left_bound = setLeftBound();
@@ -167,48 +156,145 @@ public class CEState extends BasicGameState implements GameParameters {
 
 		// Bar
 		bar = setBar();
+	}
+
+	public void dropping(Letter l) {
+		Vector2f start_pos = l.getPosition();
+		l.setVisible(true);
+		Random random = new Random();
+		int rotation;
+
+		// Movement
+		if (difficult) {
+			rotation = random.nextInt(91) - 45;
+		} else {
+			rotation = 0;
+		}
+		float speed = 0.15f * (random.nextInt(2) + 1);
+
+		MoveDownAction move_down = new MoveDownAction(speed * (float) Math.cos(Math.toRadians(rotation)));
+		MoveRightAction move_right = new MoveRightAction(speed * (float) Math.sin(Math.toRadians(rotation)));
+
+		LoopEvent loop = new LoopEvent();
+		loop.addAction(move_down);
+		loop.addAction(move_right);
+
+		l.setIntRotation(rotation);
+		l.setSpeed(speed);
+		l.addComponent(loop);
+
+		// Collision with bounds
 
 		CollisionEvent touch_bound = new CollisionEvent();
 		touch_bound.addAction(new Action() {
 			@Override
-			public void update(GameContainer container, StateBasedGame g, int i, Component c) {
-
-				if (bar.collides(left_bound)) {
-					bar.setPosition(new Vector2f(left_bound.getShape().getCenterX() + left_bound.getSize().getX() * 0.5f
-							+ bar.getSize().getX() * 0.5f, bar.getPosition().getY()));
-				}
-				if (bar.collides(right_bound)) {
-					bar.setPosition(
-							new Vector2f(right_bound.getShape().getCenterX() - right_bound.getSize().getX() * 0.5f
-									- bar.getSize().getX() * 0.5f, bar.getPosition().getY()));
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				if (l.collides(left_bound) || l.collides(right_bound)) {
+					l.setIntRotation(-l.getIntRotation());
+					loop.clearActions();
+					calculateMovement(l).forEach((a) -> {
+						loop.addAction(a);
+					});
 				}
 			}
 		});
 
-		bar.addComponent(touch_bound);
-	}
+		l.addComponent(touch_bound);
 
-	public void dropping(Entity l) {
-		Vector2f start_pos = l.getPosition();
-		l.setVisible(true);
-		LoopEvent loop = new LoopEvent();
-		loop.addAction(new MoveDownAction(0.1f * (new Random().nextInt(3) + 1)));
-		loop.addAction(new Action() {
+		// Collision with letters
+
+		CollisionEvent touch_letter = new CollisionEvent();
+		touch_letter.addAction(new Action() {
+			@Override
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				if (l.collides(left_bound) || l.collides(right_bound) || l.collides(bar)) {
+					return;
+				}
+				if (falling_letters.contains(touch_letter.getCollidedEntity())) {
+					l.setIntRotation(0);
+
+					loop.clearActions();
+					calculateMovement(l).forEach((a) -> {
+						loop.addAction(a);
+					});
+				}
+			}
+		});
+
+		l.addComponent(touch_letter);
+		LoopEvent delete = new LoopEvent();
+		CollisionEvent touch_bar = new CollisionEvent();
+
+		// Touching bar
+		touch_bar.addAction(new Action() {
+			@Override
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				if (l.collides(bar)) {
+					l.setPosition(start_pos);
+					taken_letters.add(l.getID());
+
+					redundant.add(l);
+					l.setPosition(start_pos);
+					if (!dead_letters.contains(l)) {
+						dead_letters.add(l);
+					}
+					falling_letters.remove(l);
+					l.setVisible(false);
+
+					renderTakenLetter();
+
+					l.removeComponent(loop);
+					l.removeComponent(touch_bound);
+					l.removeComponent(touch_letter);
+					l.removeComponent(delete);
+					l.removeComponent(touch_bar);
+				}
+			}
+		});
+		l.addComponent(touch_bar);
+
+		// Delete
+		delete.addAction(new Action() {
 			@Override
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
 				if (l.getPosition().getY() > arg0.getHeight() || l.getPosition().getY() < 0
-						|| taken_letter.size() == limit) {
+						|| l.getPosition().getX() > arg0.getWidth() || l.getPosition().getX() < 0
+						|| taken_letters.size() == limit || bag_of_letters_ce.size() <= 0) {
 					l.setPosition(start_pos);
-					bag_of_letters_ce.add(l);
-					l.removeComponent(loop);
+					if (!dead_letters.contains(l)) {
+						dead_letters.add(l);
+					}
+					falling_letters.remove(l);
 					l.setVisible(false);
+
+					l.removeComponent(loop);
+					l.removeComponent(touch_bound);
+					l.removeComponent(touch_letter);
+					l.removeComponent(delete);
+					l.removeComponent(touch_bar);
 				}
 			}
 		});
-		l.addComponent(loop);
+
+		l.addComponent(delete);
 	}
-	
-	public void triggerReturn(Entity button) {
+
+	public ArrayList<Action> calculateMovement(Letter l) {
+		int rotation = l.getIntRotation();
+		float speed = l.getSpeed();
+
+		MoveDownAction move_down = new MoveDownAction(speed * (float) Math.cos(Math.toRadians(rotation)));
+		MoveRightAction move_right = new MoveRightAction(speed * (float) Math.sin(Math.toRadians(rotation)));
+
+		ArrayList<Action> result = new ArrayList<Action>();
+
+		result.add(move_right);
+		result.add(move_down);
+
+		return result;
+	}
+
+	public void triggerReturn(DialogueButton button) {
 		ANDEvent return_to_gameplay_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
 		Action new_Game_Action = new ChangeStateAction(Launch.GAMEPLAY_STATE);
 		return_to_gameplay_event.addAction(new Action() {
@@ -220,24 +306,85 @@ public class CEState extends BasicGameState implements GameParameters {
 					button.removeComponent(return_to_gameplay_event);
 					return;
 				}
-				taken_letter.clear();
+
 				current_display_taken_letter.forEach((l) -> {
 					entityManager.removeEntity(stateID, l);
 				});
+
+				dead_letters.forEach((l) -> {
+					if (!bag_of_letters_ce.contains(l)) {
+						bag_of_letters_ce.add(l);
+					}
+
+				});
+
+				redundant.forEach((l) -> {
+					if (!bag_of_letters_ce.contains(l)) {
+						bag_of_letters_ce.add(l);
+					}
+				});
+
+				falling_letters.forEach((l) -> {
+					if (!bag_of_letters_ce.contains(l)) {
+						bag_of_letters_ce.add(l);
+					}
+				});
+
+				taken_letters.forEach((l) -> {
+					GameplayState.bag_of_letters.remove(l);
+				});
+
+				falling_letters.clear();
+				redundant.clear();
+				dead_letters.clear();
+				taken_letters.clear();
+				bar.setPosition(new Vector2f(350, 707.5f));
+				if (difficulty.getType() == "hard") {
+					difficult = false;
+					difficulty.setType("easy");
+					difficulty.addImageComponent();
+				}
+
 				warning_text = "";
 				return_clickable = false;
+				difficulty_clickable = true;
 			}
 		});
 		return_to_gameplay_event.addAction(new_Game_Action);
 		button.addComponent(return_to_gameplay_event);
 	}
 
-	public void renderDroppableLetter(String letter) {
-		Entity l = new Entity(letter);
+	public void triggerDifficulty(DialogueButton button) {
+		ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+		Action clickOnButton = new Action() {
+			@Override
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				if (!difficulty_clickable) {
+					return;
+				}
+				if (button.getType() == "easy") {
+					difficult = true;
+					button.setType("hard");
+					button.addImageComponent();
+				} else if (button.getType() == "hard") {
+					difficult = false;
+					button.setType("easy");
+					button.addImageComponent();
+				}
+			}
+		};
+		clickEvent.addAction(clickOnButton);
+		button.addComponent(clickEvent);
+	}
+
+	public void renderHangingLetter(String letter) {
+
 		Vector2f tv = new Vector2f(120 + new Random().nextInt(460), 90);
+		Letter l = new Letter(letter, letter.charAt(0), tv, false);
 		l.setVisible(false);
+		l.setPassable(true);
 		l.setPosition(tv);
-		l.setPassable(false);
+
 		l.setScale(LETTER_SCALE_FACTOR);
 
 		ImageRenderComponent image = null;
@@ -256,34 +403,19 @@ public class CEState extends BasicGameState implements GameParameters {
 			}
 		}
 
-		// Touching bar
-		CollisionEvent touch_bar = new CollisionEvent();
-		touch_bar.addAction(new Action() {
-			@Override
-			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
-				if (l.collides(bar)) {
-					taken_letter.add(l.getID());
-					bag_of_letters_ce.remove(l);
-					entityManager.removeEntity(stateID, l);
-					renderTakenLetter();
-				}
-			}
-		});
-		l.addComponent(touch_bar);
-
 		entityManager.addEntity(stateID, l);
 		bag_of_letters_ce.add(l);
 	}
 
 	public void renderTakenLetter() {
-		for (int i = 0; i < taken_letter.size(); i++) {
+		for (int i = 0; i < taken_letters.size(); i++) {
 			Vector2f tv;
 			if (i < 4) {
 				tv = new Vector2f(750 + 50 * i, 400);
 			} else {
 				tv = new Vector2f(925 - 50 * (7 - i), 450);
 			}
-			Letter l = new Letter(taken_letter.get(i), taken_letter.get(i).charAt(0), tv,false);
+			Letter l = new Letter(taken_letters.get(i), taken_letters.get(i).charAt(0), tv, false);
 			current_display_taken_letter.add(l);
 			entityManager.addEntity(stateID, l);
 		}
@@ -291,22 +423,22 @@ public class CEState extends BasicGameState implements GameParameters {
 
 	public void stopCEGame() {
 		System.out.println("CE game stopped. Traded letters: ");
-		taken_letter.forEach((l) -> {
+		taken_letters.forEach((l) -> {
 			System.out.print(l + ", ");
 		});
 		System.out.println("Player to watch: " + Players.currentPlayer.getID());
 		timer.cancel();
 		play_clickable = false;
 		return_clickable = true;
-		triggerReturn(return_button);
 		for (int i = 0; i < Players.getNumberOfPlayers(); i++) {
 			if (Players.getPlayers().get(i).getID() == current_player) {
-				for (int j = 0; j < taken_letter.size(); j++) {
-					Players.getPlayers().get(i).addLetter(taken_letter.get(j));
+				for (int j = 0; j < taken_letters.size(); j++) {
+					Players.getPlayers().get(i).addLetter(taken_letters.get(j));
 				}
 			}
 		}
 
+		triggerReturn(return_button);
 	}
 
 	public Entity setLeftBound() {
@@ -343,7 +475,7 @@ public class CEState extends BasicGameState implements GameParameters {
 		bar.setScale(0.5f);
 		bar.setPosition(new Vector2f(350, 707.5f));
 		bar.setVisible(true);
-		bar.setPassable(false);
+		bar.setPassable(true);
 
 		KeyDownEvent move_right = new KeyDownEvent(Keyboard.KEY_RIGHT);
 		move_right.addAction(new MoveRightAction(0.5f));
@@ -352,6 +484,25 @@ public class CEState extends BasicGameState implements GameParameters {
 		KeyDownEvent move_left = new KeyDownEvent(Keyboard.KEY_LEFT);
 		move_left.addAction(new MoveLeftAction(0.5f));
 		bar.addComponent(move_left);
+
+		CollisionEvent touch_bound = new CollisionEvent();
+		touch_bound.addAction(new Action() {
+			@Override
+			public void update(GameContainer container, StateBasedGame g, int i, Component c) {
+
+				if (bar.collides(left_bound)) {
+					bar.setPosition(new Vector2f(left_bound.getShape().getCenterX() + left_bound.getSize().getX() * 0.5f
+							+ bar.getSize().getX() * 0.5f, bar.getPosition().getY()));
+				}
+				if (bar.collides(right_bound)) {
+					bar.setPosition(
+							new Vector2f(right_bound.getShape().getCenterX() - right_bound.getSize().getX() * 0.5f
+									- bar.getSize().getX() * 0.5f, bar.getPosition().getY()));
+				}
+			}
+		});
+
+		bar.addComponent(touch_bound);
 
 		bar.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/bar.png")));
 		entityManager.addEntity(stateID, bar);
@@ -363,12 +514,35 @@ public class CEState extends BasicGameState implements GameParameters {
 	public void render(GameContainer container, StateBasedGame game, Graphics graphic) throws SlickException {
 		entityManager.renderEntities(container, game, graphic);
 
+		int[] players_ui = new int[Players.getNumberOfPlayers()];
+		int[] players_ui_score = new int[Players.getNumberOfPlayers()];
+		for (int i = 0; i < Players.getNumberOfPlayers(); i++) {
+			players_ui[i] = Players.getPlayers().get(i).getID();
+			players_ui_score[i] = Players.getPlayers().get(i).getScore();
+		}
+
+		for (int i = 0; i < players_ui.length; i++) {
+			if (players_ui[i] == current_player) {
+				graphic.setColor(new Color(255, 0, 0));
+				graphic.drawString("Player " + players_ui[i] + ": " + players_ui_score[i], 90 + 160 * i, 50);
+			} else {
+				graphic.setColor(new Color(0, 0, 0));
+				graphic.drawString("Player " + players_ui[i] + ": " + players_ui_score[i], 90 + 160 * i, 50);
+			}
+		}
+
 		graphic.setColor(new Color(255, 255, 255));
 		Shape s = new Rectangle(100, 70, 500, 650);
 		graphic.draw(s);
-		
+
 		graphic.setColor(new Color(255, 0, 0));
 		graphic.drawString(warning_text, 90, 10);
+
+//		graphic.setColor(new Color(0, 0, 0));
+//		graphic.drawString("Current main bag size:" + GameplayState.bag_of_letters.size(), 700, 220);
+//		graphic.drawString("Current CE bag size:" + bag_of_letters_ce.size(), 700, 270);
+//		graphic.drawString("Dead letters:" + dead_letters.size(), 700, 320);
+//		graphic.drawString("Currently falling letters:" + falling_letters.size(), 700, 370);
 	}
 
 	@Override

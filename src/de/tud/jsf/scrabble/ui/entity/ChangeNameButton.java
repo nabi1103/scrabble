@@ -37,7 +37,6 @@ public class ChangeNameButton extends Entity implements GameParameters{
 				System.err.println("Entity image cannot be loaded!");
 			}
 		}
-		
 				
 	}
 	

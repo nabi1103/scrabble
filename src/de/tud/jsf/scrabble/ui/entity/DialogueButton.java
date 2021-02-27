@@ -14,7 +14,6 @@ public class DialogueButton extends Entity implements GameParameters{
 	String id;
 	Vector2f pos;
 	String type; // "confirm", "cancel"
-	DialogueBox parent;
 	ImageRenderComponent image;
 
 	public DialogueButton(String entityID, Vector2f startPos, String type) {
@@ -30,10 +29,6 @@ public class DialogueButton extends Entity implements GameParameters{
 		this.setSize(new Vector2f(100, 50));
 	}
 	
-	public void addDialogueBox(DialogueBox b) {
-		this.parent = b;
-	}
-	
 	public String getType() {
 		return type;
 	}
@@ -42,12 +37,16 @@ public class DialogueButton extends Entity implements GameParameters{
 		this.type = t;
 	}
 	
+<<<<<<< HEAD
+	public ImageRenderComponent addImageComponent() {		
+=======
 	public DialogueBox getDialogueBox() {
 		return parent;
 	}
 	
 	public ImageRenderComponent addImageComponent() {
 		if (!Launch.debug)
+>>>>>>> 596004564e331a351db39d98885a56ca7b1618db
 		switch (this.getType()) {
 		case "confirm":
 			try {
@@ -179,7 +178,39 @@ public class DialogueButton extends Entity implements GameParameters{
 				e.printStackTrace();
 			}
 			break;
+			
+		case "return":
+			try {
+				image = new ImageRenderComponent(new Image(RETURN_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + RETURN_BUTTON);
+				e.printStackTrace();
+			}
+			break;
+
+
+		case "easy":
+			try {
+				image = new ImageRenderComponent(new Image(EASY_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + EASY_BUTTON);
+				e.printStackTrace();
+			}
+			break;
+			
+		case "hard":
+			try {
+				image = new ImageRenderComponent(new Image(HARD_BUTTON));
+				this.addComponent(image);
+			} catch (SlickException e) {
+				System.err.println("Cannot find file " + HARD_BUTTON);
+				e.printStackTrace();
+			}
+			break;
 		}
+		
 		
 		return image; 
 	}
