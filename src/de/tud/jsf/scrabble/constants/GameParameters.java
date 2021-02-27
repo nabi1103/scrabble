@@ -89,6 +89,8 @@ public interface GameParameters {
 	public static final String QUIT_BUTTON = "assets/scrabble/ui/quit_button.png";
 	public static final String SHOW_BUTTON = "assets/scrabble/ui/show_button.png";
 	public static final String BACK_BUTTON = "assets/scrabble/ui/back_button.png";
+	public static final String EASY_BUTTON = "assets/scrabble/ui/easy_button.png";
+	public static final String HARD_BUTTON = "assets/scrabble/ui/hard_button.png";
 	
 	public static final String BACKGROUND = "assets/scrabble/ui/background.png";
 	public static final String MAINMENU = "assets/scrabble/ui/main_menu.png";
