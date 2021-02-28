@@ -33,14 +33,13 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
 	
 	int numberOfPlayers;
 	private String statusBar;
-	
-	private final int distance = 100;
-    private final int start_Position = 180;
     
     private final int CENTERX = WINDOW_WIDTH / 2;
     private final int CENTERY = WINDOW_HEIGHT / 2;
     private final int DISTANCE_BETWEEN_BUTTONS = 75;
     
+    Vector2f difficulty_pos = new Vector2f(190, 450);
+	private DialogueButton difficulty = new DialogueButton("difficulty_button", difficulty_pos, "easy");
     
     ChangeNameButton[] playerBoxes;
 //    Entity start;
@@ -150,8 +149,11 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
     	}    	    	
     	entityManager.addEntity(stateID, start);
     	entityManager.addEntity(stateID, back);
-    	    	
     	
+    	difficulty = new DialogueButton("difficulty_button", difficulty_pos, "easy");
+		difficulty.addImageComponent();
+		entityManager.addEntity(stateID, difficulty);
+		triggerDifficulty(difficulty);
 	}
 	private Action createPlayerSelectAction(int i) {
 		return new Action() {
@@ -161,6 +163,29 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
 			}			
 		};
 	}
+	
+	public void triggerDifficulty(DialogueButton button) {
+		ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
+		Action clickOnButton = new Action() {
+			@Override
+			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
+				if (button.getType() == "easy") {
+					GameplayState.advanced_trade = true;
+					System.out.println(GameplayState.advanced_trade);
+					button.setType("hard");
+					button.addImageComponent();
+				} else if (button.getType() == "hard") {
+					GameplayState.advanced_trade = false;
+					System.out.println(GameplayState.advanced_trade);
+					button.setType("easy");
+					button.addImageComponent();
+				}
+			}
+		};
+		clickEvent.addAction(clickOnButton);
+		button.addComponent(clickEvent);
+	}
+	
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics graphic) throws SlickException {
 		entityManager.renderEntities(container, game, graphic);
@@ -173,6 +198,10 @@ public class PlayerSelectState extends BasicGameState implements GameParameters{
 //		graphic.drawString("Players: " + numberOfPlayers, back.getPosition().getX(),back.getPosition().getY() + 70);
 		graphic.setColor(new Color(255,0,0));
 		graphic.drawString(statusBar, back.getPosition().getX(),back.getPosition().getY() + 50);
+		
+		graphic.setColor(new Color(0, 0, 0));
+		graphic.drawString("Press the button to set the difficulty\nof trading letters. Current mode is " + (GameplayState.advanced_trade? "hard\n(With minigame)" : "easy\n(Without minigame)"), 10, 360);
+		
 	}
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {

@@ -75,11 +75,11 @@ public class CEState extends BasicGameState implements GameParameters {
 		this.stateID = sid;
 		entityManager = StateBasedEntityManager.getInstance();
 	}
-	
+
 	public int getTakenLettersSize() {
 		return taken_letters.size();
 	}
-	
+
 	public boolean getReturnClickable() {
 		return return_clickable;
 	}
@@ -88,7 +88,8 @@ public class CEState extends BasicGameState implements GameParameters {
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
 		Entity background = new Entity("background");
 		background.setPosition(new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
-		if (!Launch.debug)background.addComponent(new ImageRenderComponent(new Image(BACKGROUND)));
+		if (!Launch.debug)
+			background.addComponent(new ImageRenderComponent(new Image(BACKGROUND)));
 		entityManager.addEntity(stateID, background);
 
 		// Hanging letters
@@ -391,12 +392,11 @@ public class CEState extends BasicGameState implements GameParameters {
 		l.setVisible(false);
 		l.setPassable(true);
 		l.setPosition(tv);
-		
 
 		l.setScale(LETTER_SCALE_FACTOR);
 
 		ImageRenderComponent image = null;
-		
+
 		if (!Launch.debug) {
 			for (String path : LETTERS) {
 				char image_id;
@@ -412,8 +412,6 @@ public class CEState extends BasicGameState implements GameParameters {
 				}
 			}
 		}
-
-	
 
 		entityManager.addEntity(stateID, l);
 		bag_of_letters_ce.add(l);
@@ -488,7 +486,7 @@ public class CEState extends BasicGameState implements GameParameters {
 		bar.setPosition(new Vector2f(350, 707.5f));
 		bar.setVisible(true);
 		bar.setPassable(true);
-		bar.setSize(new Vector2f(190*0.5f , 45*0.5f));
+		bar.setSize(new Vector2f(190 * 0.5f, 45 * 0.5f));
 
 		KeyDownEvent move_right = new KeyDownEvent(Keyboard.KEY_RIGHT);
 		move_right.addAction(new MoveRightAction(0.5f));
@@ -517,7 +515,8 @@ public class CEState extends BasicGameState implements GameParameters {
 
 		bar.addComponent(touch_bound);
 
-		if (!Launch.debug)bar.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/bar.png")));
+		if (!Launch.debug)
+			bar.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/bar.png")));
 		entityManager.addEntity(stateID, bar);
 
 		return bar;
@@ -537,10 +536,12 @@ public class CEState extends BasicGameState implements GameParameters {
 		for (int i = 0; i < players_ui.length; i++) {
 			if (players_ui[i] == current_player) {
 				graphic.setColor(new Color(255, 0, 0));
-				graphic.drawString("Player " +  Players.getPlayers().get(i).getName() + ": " + players_ui_score[i], 90 + 160 * i, 50);
+				graphic.drawString("Player " + Players.getPlayers().get(i).getName() + ": " + players_ui_score[i],
+						90 + 160 * i, 50);
 			} else {
 				graphic.setColor(new Color(0, 0, 0));
-				graphic.drawString("Player " + Players.getPlayers().get(i).getName() + ": " + players_ui_score[i], 90 + 160 * i, 50);
+				graphic.drawString("Player " + Players.getPlayers().get(i).getName() + ": " + players_ui_score[i],
+						90 + 160 * i, 50);
 			}
 		}
 
@@ -550,12 +551,6 @@ public class CEState extends BasicGameState implements GameParameters {
 
 		graphic.setColor(new Color(255, 0, 0));
 		graphic.drawString(warning_text, 90, 10);
-
-//		graphic.setColor(new Color(0, 0, 0));
-//		graphic.drawString("Current main bag size:" + GameplayState.bag_of_letters.size(), 700, 220);
-//		graphic.drawString("Current CE bag size:" + bag_of_letters_ce.size(), 700, 270);
-//		graphic.drawString("Dead letters:" + dead_letters.size(), 700, 320);
-//		graphic.drawString("Currently falling letters:" + falling_letters.size(), 700, 370);
 	}
 
 	@Override
