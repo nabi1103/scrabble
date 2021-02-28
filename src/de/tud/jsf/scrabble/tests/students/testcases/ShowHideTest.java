@@ -12,15 +12,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.newdawn.slick.geom.Vector2f;
 
-import de.tud.jsf.scrabble.tests.adapter.ScrabbleTestAdapterExtended2;
+import de.tud.jsf.scrabble.tests.adapter.ScrabbleTestAdapterExtended3;
 
 public class ShowHideTest {
 
-	ScrabbleTestAdapterExtended2 adapter;
+	ScrabbleTestAdapterExtended3 adapter;
 
 	@Before
 	public void setup() {
-		adapter = new ScrabbleTestAdapterExtended2();
+		adapter = new ScrabbleTestAdapterExtended3();
 	}
 	@After
 	public void finish() {

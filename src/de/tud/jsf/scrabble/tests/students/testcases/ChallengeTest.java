@@ -46,12 +46,12 @@ public class ChallengeTest {
 		adapter.initGame();
 		enteringGameplayState();
 		String oldName = adapter.getNameOfCurrentPlayer();
-		adapter.handleMousePressed(adapter.getChallengeButtonPosition(),0,0);
+		adapter.handleMousePressed(adapter.getCheckButtonPosition(),0,0);
 		assertTrue("Challenging while there are no previous words is not possible!",adapter.getCurrentRound() == 1);
 		assertTrue("Challenging while there are no previous words is not possible!",adapter.getNameOfCurrentPlayer() == oldName );
 		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);
 		oldName = adapter.getNameOfCurrentPlayer();
-		adapter.handleMousePressed(adapter.getChallengeButtonPosition(),0,0);
+		adapter.handleMousePressed(adapter.getCheckButtonPosition(),0,0);
 		assertTrue("Challenging while there are no previous words is not possible!",adapter.getCurrentRound() == 2);
 		assertTrue("Challenging while there are no previous words is not possible!",adapter.getNameOfCurrentPlayer() == oldName );
 		adapter.stopGame();
@@ -76,7 +76,7 @@ public class ChallengeTest {
 		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);
 		String nextName2 = adapter.getNameOfNextPlayer();
 		String word = adapter.getBoard()[7][7] + "" + adapter.getBoard()[7][8];
-		adapter.handleMousePressed(adapter.getChallengeButtonPosition(),0,0);
+		adapter.handleMousePressed(adapter.getCheckButtonPosition(),0,0);
 		int score = adapter.getPlayerData().get(oldName);
 		//System.out.println("Word is " + "" + word);
 		if (!adapter.isWordLegal(word)) {
@@ -133,7 +133,7 @@ public class ChallengeTest {
 		int currentRound = adapter.getCurrentRound();
 		String p3Name = adapter.getNameOfCurrentPlayer();
 		String p4Name = adapter.getNameOfNextPlayer();
-		adapter.handleMousePressed(adapter.getChallengeButtonPosition(),0,0);
+		adapter.handleMousePressed(adapter.getCheckButtonPosition(),0,0);
 		//System.out.println("Words are " + word1 + " and " + word2);
 		assertTrue("Can only challenge words formed immediately before current turn!" +
 		"Expected "+ p1Score + "\nActual:" + adapter.getPlayerData().get(p1Name),p1Score == adapter.getPlayerData().get(p1Name));
@@ -175,7 +175,7 @@ public class ChallengeTest {
 		int p1Score = adapter.getPlayerData().get(p1Name);
 		int currentRound = adapter.getCurrentRound();
 		String p3Name = adapter.getNameOfCurrentPlayer();
-		adapter.handleMousePressed(adapter.getChallengeButtonPosition(),0,0);
+		adapter.handleMousePressed(adapter.getCheckButtonPosition(),0,0);
 		assertTrue("Challenging while there are no previous words is not possible!",adapter.getCurrentRound() == currentRound);
 		assertTrue("Challenging while there are no previous words is not possible!",adapter.getNameOfCurrentPlayer() == p3Name);
 		assertTrue("Challenging while there are no previous words is not possible!",p1Score == adapter.getPlayerData().get(p1Name));
