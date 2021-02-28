@@ -44,32 +44,32 @@ public class CEState extends BasicGameState implements GameParameters {
 	private StateBasedEntityManager entityManager;
 
 	private Entity left_bound, right_bound, bar;
-	private ArrayList<Letter> bag_of_letters_ce = new ArrayList<Letter>();
-	private ArrayList<Letter> falling_letters = new ArrayList<Letter>();
-	private ArrayList<Letter> dead_letters = new ArrayList<Letter>();
-	private ArrayList<Letter> redundant = new ArrayList<Letter>();
+	private ArrayList<Letter> bag_of_letters_ce ;
+	private ArrayList<Letter> falling_letters ;
+	private ArrayList<Letter> dead_letters;
+	private ArrayList<Letter> redundant;
 
-	private ArrayList<String> taken_letters = new ArrayList<String>();
+	private ArrayList<String> taken_letters;
 
 	private Timer timer;
-	private ArrayList<Entity> current_display_taken_letter = new ArrayList<Entity>();
+	private ArrayList<Entity> current_display_taken_letter;
 
 	// Button
-	private boolean return_clickable = false;
-	static boolean play_clickable = false;
-	private boolean difficulty_clickable = true;
+	private boolean return_clickable;
+	static boolean play_clickable;
+	private boolean difficulty_clickable;
 
 	private DialogueButton return_button;
-	Vector2f difficulty_pos = new Vector2f(825, 180);
-	private DialogueButton difficulty = new DialogueButton("difficulty_button", difficulty_pos, "easy");
-	private boolean difficult = false;
+	Vector2f difficulty_pos;
+	private DialogueButton difficulty;
+	private boolean difficult;
 
 	// Gameplay
 	static int limit;
 	static int current_player;
 
 	// Warning text
-	static String warning_text = "";
+	static String warning_text;
 
 	CEState(int sid) {
 		this.stateID = sid;
@@ -84,8 +84,32 @@ public class CEState extends BasicGameState implements GameParameters {
 		return return_clickable;
 	}
 
+	public void initVariables() {
+		bag_of_letters_ce = new ArrayList<Letter>();
+		falling_letters = new ArrayList<Letter>();
+		dead_letters = new ArrayList<Letter>();
+		redundant = new ArrayList<Letter>();
+
+		taken_letters = new ArrayList<String>();
+
+
+		current_display_taken_letter = new ArrayList<Entity>();
+
+
+		return_clickable = false;
+		play_clickable = false;
+		difficulty_clickable = true;
+
+
+		difficulty_pos = new Vector2f(825, 180);
+		difficulty = new DialogueButton("difficulty_button", difficulty_pos, "easy");
+		difficult = false;
+		warning_text = "";
+	}
+
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
+		initVariables();
 		Entity background = new Entity("background");
 		background.setPosition(new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
 		if (!Launch.debug)

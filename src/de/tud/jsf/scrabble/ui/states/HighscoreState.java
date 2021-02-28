@@ -2,11 +2,7 @@ package de.tud.jsf.scrabble.ui.states;
 
 import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -74,25 +70,21 @@ public class HighscoreState extends BasicGameState implements GameParameters {
 		float y = 275;
 
 		g.drawString("Name", x, y - 50);
-		g.drawString("Score", x + 225, y - 50);
-		g.drawString("Round won", x + 385, y - 50);
+		g.drawString("Score", x + 100, y - 50);
+		g.drawString("Round won", x + 200, y - 50);
 
 		if (highscores.isEmpty())
 			g.drawString("No highscores found.", x + 40, y + 50);
-		int i = 1;
-		for (Highscore hsc : highscores) {
-			// Position
-			g.drawString(String.valueOf(i) + ".", x - 40, y);
+		for (Highscore hsc : highscores) {			
 			// Name
-			g.drawString(hsc.getName(), x, y);
+			g.drawString(hsc.getName(), x+10, y);
 			// Score
-			g.drawString(((Integer) hsc.getScore()).toString(), x + 250, y);
+			g.drawString(((Integer) hsc.getScore()).toString(), x + 120, y);
 			// Round
-			g.drawString(((Integer) hsc.getRound()).toString(), x + 375, y);
-			i++;
+			g.drawString(((Integer) hsc.getRound()).toString(), x + 230, y);
 			y += 35;
 		}
-//		g.drawString("Back", WINDOW_WIDTH-118,WINDOW_HEIGHT - 110);
+
 	}
 
 	@Override

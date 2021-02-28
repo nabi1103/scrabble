@@ -11,11 +11,11 @@ import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
 import de.tud.jsf.scrabble.ui.states.Launch;
-import eea.engine.action.Action;
+
 import eea.engine.entity.Entity;
 import eea.engine.entity.StateBasedEntityManager;
 import eea.engine.test.TestAppGameContainer;
-import de.tud.jsf.scrabble.ui.entity.DialogueButton;
+
 import de.tud.jsf.scrabble.ui.entity.Letter;
 import de.tud.jsf.scrabble.ui.states.GameplayState;
 

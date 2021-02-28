@@ -285,7 +285,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		if (!Launch.debug)
 			test.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/grey_boxCross.png")));
 		test.setSize(new Vector2f(38, 36));
-		entityManager.addEntity(stateID, test);
+		//entityManager.addEntity(stateID, test);
 		//triggerUndo(undo);
 
 		ANDEvent test_event = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
@@ -313,7 +313,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			}
 		});
 		test.addComponent(test_event);
-		entityManager.addEntity(stateID, test);
+		//entityManager.addEntity(stateID, test);
 
 		// TODO: Show letters Button
 

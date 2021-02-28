@@ -7,7 +7,7 @@ import org.newdawn.slick.geom.Vector2f;
 
 import de.tud.jsf.scrabble.model.highscore.Highscore;
 import de.tud.jsf.scrabble.model.highscore.HighscoreList;
-import de.tud.jsf.scrabble.ui.entity.DialogueButton;
+
 import de.tud.jsf.scrabble.ui.entity.Lexicon;
 import eea.engine.entity.Entity;
 import eea.engine.entity.StateBasedEntityManager;
