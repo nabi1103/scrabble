@@ -1,4 +1,4 @@
-package de.tud.jsf.scrabble.tests.students.testcases;
+package de.tud.jsf.scrabble.tests.tutors.testcases;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -78,13 +78,14 @@ public class PlayButtonTest {
 	// Test starting score	
 	@Test
 	public void testStartingScore() {
-		// STUDENT
+		// TUTOR
 		adapter.initGame();
 		enteringGameplayState();
 		Map<String,Integer> playerData = adapter.getPlayerData();
 		for (String name : adapter.getPlayerNames()) {
 			assertTrue(playerData.get(name) == 0);
 		}
+
 		
 	}
 	
@@ -108,6 +109,7 @@ public class PlayButtonTest {
 		assertTrue("Player making an invalid move cannot move on!",oldName == adapter.getNameOfCurrentPlayer());
 		assertTrue("Player making an invalid move cannot move on!",oldScore == adapter.getScoreOfCurrentPlayer());
 		assertTrue("Player making an invalid move cannot move on!",oldTurn == adapter.getCurrentRound());
+
 		
 	}
 	
@@ -141,8 +143,58 @@ public class PlayButtonTest {
 		assertTrue("Player making an invalid move cannot move on!",oldName == adapter.getNameOfCurrentPlayer());
 		assertTrue("Player making an invalid move cannot move on!",oldScore == adapter.getScoreOfCurrentPlayer());
 		assertTrue("Player making an invalid move cannot move on!",oldTurn == adapter.getCurrentRound());
+
 	}
 	
+	@Test
+	public void testInvalidMove3() {
+		// TUTOR
+		// Pass then not place a letter on the middle field
+		int testRow = 8;
+		int testColumn = 9;
+		adapter.initGame();
+		enteringGameplayState();
+		int nextScore = adapter.getScoreOfNextPlayer();
+		String nextName = adapter.getNameOfNextPlayer();
+		int nextTurn = adapter.getCurrentRound() + 1;
+		List<Vector2f> inventory = adapter.getLettersInInventoryPosition();
+		Vector2f letterPos = inventory.get(0);
+		Vector2f fieldPos = adapter.getFieldPosition(testRow,testColumn);
+		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);
+		assertTrue("Pass not working!",nextName == adapter.getNameOfCurrentPlayer());
+		assertTrue("Pass not working!",nextScore == adapter.getScoreOfCurrentPlayer());
+		assertTrue("Pass not working!",nextTurn == adapter.getCurrentRound());
+		adapter.handleMousePressed(letterPos,0,0);
+		adapter.handleMousePressed(fieldPos,0,0);
+		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);
+		assertTrue("Player making an invalid move cannot move on!",nextName == adapter.getNameOfCurrentPlayer());
+		assertTrue("Player making an invalid move cannot move on!",nextScore == adapter.getScoreOfCurrentPlayer());
+		assertTrue("Player making an invalid move cannot move on!",nextTurn == adapter.getCurrentRound());
+	
+	}
+	
+	@Test
+	public void testInvalidMove4() {
+		// TUTOR
+		// Placing only 1 letter at start
+		int testRow = 8;
+		int testColumn = 8;
+		adapter.initGame();
+		enteringGameplayState();
+		int oldScore = adapter.getScoreOfCurrentPlayer();
+		String oldName = adapter.getNameOfCurrentPlayer();
+		int oldTurn = adapter.getCurrentRound();
+		List<Vector2f> inventory = adapter.getLettersInInventoryPosition();
+		Vector2f letterPos = inventory.get(0);
+		Vector2f fieldPos = adapter.getFieldPosition(testRow,testColumn);
+		adapter.handleMousePressed(letterPos,0,0);
+		adapter.handleMousePressed(fieldPos,0,0);
+		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);		
+		assertTrue("Player making an invalid move cannot move on!",oldName == adapter.getNameOfCurrentPlayer());
+		assertTrue("Player making an invalid move cannot move on!",oldScore == adapter.getScoreOfCurrentPlayer());
+		assertTrue("Player making an invalid move cannot move on!",oldTurn == adapter.getCurrentRound());
+
+	}
 	
 	// Pass test
 	@Test
@@ -157,6 +209,7 @@ public class PlayButtonTest {
 		assertTrue("Wrong player name!",nextName == adapter.getNameOfCurrentPlayer());
 		assertTrue("Wrong player score!",nextScore == adapter.getScoreOfCurrentPlayer());
 		assertTrue("Wrong turn count!",nextTurn == adapter.getCurrentRound());
+
 	}
 	
 	
@@ -187,6 +240,7 @@ public class PlayButtonTest {
 		assertTrue("Wrong player name!",nextName == adapter.getNameOfCurrentPlayer());
 		assertTrue("Score is not calculated correctly!\n"+
 		"Expected:" + (val1+val2)*2 + "\nGet:" + playerData.get(oldName),oldScore==playerData.get(oldName)-(val1+val2)*2);
+
 	}
 	@Test
 	public void testScoring1() {
@@ -221,6 +275,7 @@ public class PlayButtonTest {
 		assertTrue("Wrong player name!",nextName == adapter.getNameOfCurrentPlayer());
 		assertTrue("Score is not calculated correctly!\n"+
 		"Expected:" + (val) + "\nGet:" + playerData.get(oldName),oldScore==playerData.get(oldName)-(val));
+
 	}
 	@Test
 	public void testScoring2() {
@@ -255,6 +310,7 @@ public class PlayButtonTest {
 		assertTrue("Wrong turn count!",nextName == adapter.getNameOfCurrentPlayer());
 		assertTrue("Score is not calculated correctly!\n"+
 		"Expected:" + (val) + "\nGet:" + playerData.get(oldName),oldScore==playerData.get(oldName)-(val));
+
 	}
 		
 	@Test
@@ -315,6 +371,187 @@ public class PlayButtonTest {
 		assertTrue("Wrong player name!",nextName == adapter.getNameOfCurrentPlayer());
 		assertTrue("Score is not calculated correctly!\n"+
 		"Expected:" + val*2 + "\nGet:" + playerData.get(oldName),oldScore==playerData.get(oldName)-val*2);
+
 	}
+	@Test
+	public void testScoring4() {
+		// TUTOR
+		// Scoring of Bingo + 2x Star Multiplier + 2x letter 		
+		int testRow = 8;
+		int testColumn = 8;
+		adapter.initGame();
+		enteringGameplayState();
+		int oldScore = adapter.getScoreOfCurrentPlayer();
+		String oldName = adapter.getNameOfCurrentPlayer();
+		String nextName = adapter.getNameOfNextPlayer();
+		int nextTurn = adapter.getCurrentRound() + 1;
+		for (int i = 0 ; i < 7 ; i ++) {
+			List<Vector2f> inventory = adapter.getLettersInInventoryPosition();
+			Vector2f letterPos = inventory.get(0);		
+			Vector2f fieldPos = adapter.getFieldPosition(testRow,testColumn+i);
+			adapter.handleMousePressed(letterPos,0,0);
+			adapter.handleMousePressed(fieldPos,0,0);
+		}	
+		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);
+		int val = adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn-1]) 
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+1])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+2])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+3])*2
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+4])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+5]);
+		Map<String,Integer> playerData = adapter.getPlayerData();
+		assertTrue("Wrong turn!",nextTurn == adapter.getCurrentRound());
+		assertTrue("Wrong player name!",nextName == adapter.getNameOfCurrentPlayer());
+		assertTrue("Score is not calculated correctly!\n"+
+		"Expected:" + (val*2 + 50) + "\nGet:" + playerData.get(oldName),oldScore==playerData.get(oldName)-(val*2 + 50));
+
+	}
+
+	
+	@Test
+	public void testScoring5() {
+		// TUTOR
+		// Scoring of multipliers 2x word + 2x word
+		int testRow = 8;
+		int testColumn = 8;
+		adapter.initGame();
+		enteringGameplayState();
 		
+		for (int i = 0 ; i < 4 ; i ++) {
+			adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
+			adapter.handleMousePressed(adapter.getFieldPosition(testRow,testColumn+i),0,0);
+		}
+		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);
+
+		int oldScore = adapter.getScoreOfCurrentPlayer();
+		String oldName = adapter.getNameOfCurrentPlayer();
+		String nextName = adapter.getNameOfNextPlayer();
+		int nextTurn = adapter.getCurrentRound() + 1;
+		testColumn = 11;
+		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
+		adapter.handleMousePressed(adapter.getFieldPosition(testRow-1,testColumn),0,0);
+		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
+		adapter.handleMousePressed(adapter.getFieldPosition(testRow+1,testColumn),0,0);
+		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
+		adapter.handleMousePressed(adapter.getFieldPosition(testRow-2,testColumn),0,0);
+		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
+		adapter.handleMousePressed(adapter.getFieldPosition(testRow+2,testColumn),0,0);
+		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
+		adapter.handleMousePressed(adapter.getFieldPosition(testRow-3,testColumn),0,0);
+		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
+		adapter.handleMousePressed(adapter.getFieldPosition(testRow+3,testColumn),0,0);
+		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
+		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);
+		int val = adapter.getLetterScore(adapter.getBoard()[testRow-4][testColumn-1]) 
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-3][testColumn-1])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-2][testColumn-1])				
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn-1])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow][testColumn-1])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow+1][testColumn-1])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow+2][testColumn-1]);
+		Map<String,Integer> playerData = adapter.getPlayerData();
+		assertTrue("Wrong turn!",nextTurn == adapter.getCurrentRound());
+		assertTrue("Wrong player name!",nextName == adapter.getNameOfCurrentPlayer());
+		assertTrue("Score is not calculated correctly!\n"+
+		"Expected:" + (val*4) + "\nGet:" + playerData.get(oldName),oldScore==playerData.get(oldName)-val*4);
+
+	}
+	
+	@Test
+	public void testScoring6() {
+		// TUTOR
+		// Scoring of 3x word + multiplier elimination
+		int testRow = 8;
+		int testColumn = 8;
+		adapter.initGame();
+		enteringGameplayState();
+		
+		for (int i = 0 ; i < 7 ; i ++) {
+			List<Vector2f> inventory = adapter.getLettersInInventoryPosition();
+			Vector2f letterPos = inventory.get(0);		
+			Vector2f fieldPos = adapter.getFieldPosition(testRow,testColumn+i);
+			adapter.handleMousePressed(letterPos,0,0);
+			adapter.handleMousePressed(fieldPos,0,0);
+		}	
+		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);
+
+		int oldScore = adapter.getScoreOfCurrentPlayer();
+		String oldName = adapter.getNameOfCurrentPlayer();
+		String nextName = adapter.getNameOfNextPlayer();
+		int nextTurn = adapter.getCurrentRound() + 1;
+		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
+		adapter.handleMousePressed(adapter.getFieldPosition(8,15),0,0);
+		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);
+		int val = adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn-1]) 
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+1])				
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+2])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+3])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+4])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+5])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+6]);
+		Map<String,Integer> playerData = adapter.getPlayerData();
+		assertTrue("Wrong turn!",nextTurn == adapter.getCurrentRound());
+		assertTrue("Wrong player name!",nextName == adapter.getNameOfCurrentPlayer());
+		assertTrue("Score is not calculated correctly!\n"+
+		"Expected:" + (val*3) + "\nGet:" + playerData.get(oldName),oldScore==playerData.get(oldName)-val*3);
+
+	}
+	
+	@Test	
+	public void testScoring7() {
+		// TUTOR
+		// Scoring of word with multiplier 2x letter + 2x word
+		int testRow = 8;
+		int testColumn = 8;
+		adapter.initGame();
+		enteringGameplayState();
+	
+		int oldScore = adapter.getScoreOfCurrentPlayer();
+		String oldName = adapter.getNameOfCurrentPlayer();
+		String nextName = adapter.getNameOfNextPlayer();
+		int nextTurn = adapter.getCurrentRound() + 1;
+		List<Vector2f> inventory = adapter.getLettersInInventoryPosition();
+		Vector2f letterPos = inventory.get(0);
+		
+		Vector2f fieldPos1 = adapter.getFieldPosition(testRow,testColumn);
+		Vector2f fieldPos2= adapter.getFieldPosition(testRow,testColumn+1);
+		Vector2f fieldPos3 = adapter.getFieldPosition(testRow,testColumn+2);
+		Vector2f fieldPos4= adapter.getFieldPosition(testRow,testColumn+3);
+		Vector2f fieldPos5 = adapter.getFieldPosition(testRow,testColumn+4);
+		adapter.handleMousePressed(letterPos,0,0);
+		adapter.handleMousePressed(fieldPos1,0,0);
+		letterPos = adapter.getLettersInInventoryPosition().get(0);
+		adapter.handleMousePressed(letterPos,0,0);
+		adapter.handleMousePressed(fieldPos2,0,0);
+		letterPos = adapter.getLettersInInventoryPosition().get(0);
+		adapter.handleMousePressed(letterPos,0,0);
+		adapter.handleMousePressed(fieldPos3,0,0);
+		letterPos = adapter.getLettersInInventoryPosition().get(0);
+		adapter.handleMousePressed(letterPos,0,0);
+		adapter.handleMousePressed(fieldPos4,0,0);
+		letterPos = adapter.getLettersInInventoryPosition().get(0);
+		adapter.handleMousePressed(letterPos,0,0);
+		adapter.handleMousePressed(fieldPos5,0,0);
+		int val = adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn-1]) 
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+1])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+2])
+				+ adapter.getLetterScore(adapter.getBoard()[testRow-1][testColumn+3])*2;
+		adapter.handleMousePressed(adapter.getPlayButtonPosition(),0,0);		
+		Map<String,Integer> playerData = adapter.getPlayerData();
+		assertTrue("Wrong turn!",nextTurn == adapter.getCurrentRound());
+		assertTrue("Wrong player name!",nextName == adapter.getNameOfCurrentPlayer());
+		assertTrue("Score is not calculated correctly!\n"+
+		"Expected:" + val*2 + "\nGet:" + playerData.get(oldName),oldScore==playerData.get(oldName)-val*2);
+
+	}
+	
+	
+	
+	
+	
+	
+	
 }

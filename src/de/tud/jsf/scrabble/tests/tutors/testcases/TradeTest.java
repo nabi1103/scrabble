@@ -1,4 +1,4 @@
-package de.tud.jsf.scrabble.tests.students.testcases;
+package de.tud.jsf.scrabble.tests.tutors.testcases;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -36,6 +36,27 @@ public class TradeTest {
 		}
 	}
 	
+	@Test
+	public void resetTradeZoneTest() {
+		// TUTOR
+		enteringGameplayState();
+		adapter.handleMousePressed(adapter.getStartButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getGameplayStateID());
+		assertTrue("Wrong number of players",adapter.getCurrentNumberOfPlayers() == 4);	
+		assertTrue("Trade zone should be empty at the start!",adapter.isTradeZoneEmpty());
+		char letter = adapter.getLetter(adapter.getLettersInInventoryPosition().get(0));
+		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
+		adapter.handleMousePressed(adapter.getTradeZonePosition(),0,0);
+		assertEquals("There should be 1 letter in the trade zone!",adapter.getNumberOfLettersInTradeZone(),1 );
+		assertEquals("There should be 1 letter in the trade zone!",adapter.getLettersInTradeZone().size(),1);
+		assertEquals("Inventory size should be 6!" ,adapter.getCurrentInventorySize() , 6);
+		assertEquals("Mismatching letter!",adapter.getLettersInTradeZone().get(0), Character.valueOf(letter));
+		adapter.handleMousePressed(adapter.getUndoButtonPosition(),0,0);
+		assertTrue("Trade zone should be empty after clicking undo!",adapter.isTradeZoneEmpty());
+		assertEquals("Inventory size should be 7!" ,adapter.getCurrentInventorySize() , 7);
+		assertEquals("There should be no letter in the trade zone!",adapter.getNumberOfLettersInTradeZone(),0 );
+		assertEquals("There should be no letter in the trade zone!",adapter.getLettersInTradeZone().size(),0);
+	}
 	
 	@Test
 	public void testRandomTrade() {
@@ -112,7 +133,33 @@ public class TradeTest {
 		assertTrue("Trade zone should be empty!",adapter.isTradeZoneEmpty());
 		assertEquals("Inventory size should be 7!" ,adapter.getCurrentInventorySize() , 7);
 	}
-	
+	@Test
+	public void testMinigameTrade2() {
+		// TUTOR
+		enteringGameplayState();
+		if (adapter.isRandomTradeActivated()) {
+			adapter.handleMousePressed(adapter.getDifficultySelectButtonPosition(),0,0);
+		}
+		adapter.handleMousePressed(adapter.getStartButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getGameplayStateID());
+		assertTrue("Wrong number of players",adapter.getCurrentNumberOfPlayers() == 4);	
+		assertTrue("Trade zone should be empty at the start!",adapter.isTradeZoneEmpty());
+		assertFalse("Trade mode random should not be activated!" , adapter.isRandomTradeActivated());
+		assertTrue("Trade mode minigame should be activated!" , adapter.isMinigameTradeActivated());
+		char letter = adapter.getLetter(adapter.getLettersInInventoryPosition().get(0));
+		adapter.handleMousePressed(adapter.getLettersInInventoryPosition().get(0),0,0);
+		adapter.handleMousePressed(adapter.getTradeZonePosition(),0,0);
+		assertEquals("There should be 1 letter in the trade zone!",adapter.getNumberOfLettersInTradeZone(),1 );
+		assertEquals("There should be 1 letter in the trade zone!",adapter.getLettersInTradeZone().size(),1);
+		assertEquals("Inventory size should be 6!" ,adapter.getCurrentInventorySize() , 6);
+		assertEquals("Mismatching letter!",adapter.getLettersInTradeZone().get(0), Character.valueOf(letter));
+		adapter.handleMousePressed(adapter.getTradeButtonPosition(),0,0);
+		adapter.handleMousePressed(adapter.getMinigameStartButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getTradeStateID());
+		adapter.handleMousePressed(adapter.getMinigameReturnButtonPosition(),0,0);
+		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getTradeStateID());
+		
+	}
 	
 
 }

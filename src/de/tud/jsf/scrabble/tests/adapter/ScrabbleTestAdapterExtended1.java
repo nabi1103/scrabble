@@ -181,6 +181,26 @@ public class ScrabbleTestAdapterExtended1 extends ScrabbleTestAdapterMinimal {
 		return ((CEState) scrabble.getState(getTradeStateID())).getTakenLettersSize();
 	}
 	
+	/**
+	 * Returns the position of the difficulty select button in PlayerSelectState, with which the player can change
+	 * how trading works.
+	 * Null if there are no such buttons.
+	 * @return Vector2f representing the position of difficulty select button, null if there are none.
+	 */
+	public Vector2f getDifficultySelectButtonPosition() {
+		List<Entity> entities = new ArrayList<Entity>();
+		if (scrabble != null) 
+			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
+		for (Entity e : entities) {
+			if (e.getID() == "difficulty_button") {
+				return e.getPosition();
+			}
+		}
+		return null;
+	}
+	
+
+	
 	
 
 }

@@ -52,11 +52,11 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	private StateBasedEntityManager entityManager;
 
 	// Gameplay variables
-	private char[][] char_grid = new char[BOARDSIZE][BOARDSIZE];
-	private Board b = new Board(new Vector2f(BOARD_START_X, BOARD_START_Y));
-	private Tile[][] tiles = b.buildBoard();
-	private Lexicon lexicon = new Lexicon();
-	private static ArrayList<Word> current_words = new ArrayList<>();
+	private char[][] char_grid;
+	private Board b;
+	private Tile[][] tiles;
+	private Lexicon lexicon;
+	private static ArrayList<Word> current_words;
 	private int consecutivePasses;
 
 	// Player data
@@ -65,9 +65,9 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	// private Player currentPlayer;
 
 	// Functional variables
-	private boolean move_letter = false;
-	private Letter tmp_letter = null;
-	private boolean clickable = true;
+	private boolean move_letter;
+	private Letter tmp_letter;
+	private boolean clickable;
 
 	// String UI
 	private String displayPlayerID;
@@ -79,36 +79,36 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	private static String current_total_score;
 
 	// Letter distribution variables
-	public static ArrayList<String> bag_of_letters = new ArrayList<String>();
-	private ArrayList<Letter> current_display_letters = new ArrayList<Letter>();
-	private ArrayList<Letter> current_display_traded_letters = new ArrayList<Letter>();
-	private ArrayList<Letter> used_letters = new ArrayList<Letter>();
+	public static ArrayList<String> bag_of_letters;
+	private ArrayList<Letter> current_display_letters;
+	private ArrayList<Letter> current_display_traded_letters;
+	private ArrayList<Letter> used_letters;
 
 	// Undo button
-	private List<Entity> turn_begin_state = new ArrayList<>();
-	private char[][] turn_begin_char_grid = new char[BOARDSIZE][BOARDSIZE];
+	private List<Entity> turn_begin_state;
+	private char[][] turn_begin_char_grid;
 
-	private ArrayList<Tile> newTilesThisTurn = new ArrayList<>();
+	private ArrayList<Tile> newTilesThisTurn;
 
 	// Check button
 	private boolean checkable = true;
 	private Player last_player;
 	private int last_player_added_point;
-	private List<Entity> last_player_turn_begin_state = new ArrayList<>();
-	private ArrayList<Word> last_player_added_word = new ArrayList<>();
-	private ArrayList<Letter> last_player_used_letters = new ArrayList<Letter>();
-	private char[][] last_player_turn_begin_char_grid = new char[BOARDSIZE][BOARDSIZE];
-	private ArrayList<Tile> last_player_newTilesThisTurn = new ArrayList<>();
+	private List<Entity> last_player_turn_begin_state;
+	private ArrayList<Word> last_player_added_word;
+	private ArrayList<Letter> last_player_used_letters;
+	private char[][] last_player_turn_begin_char_grid;
+	private ArrayList<Tile> last_player_newTilesThisTurn;
 
 	// Trade button
 	Vector2f trade_pos;
 	private DialogueButton trade;
-	Vector2f show_pos = new Vector2f(825, 510);
+	Vector2f show_pos;
 	private DialogueButton show;
 
-	private ArrayList<String> traded_letter = new ArrayList<String>();
-	private boolean trading = false; // If currently trading -> can't put new tiles to the board
-	static boolean advanced_trade = false;
+	private ArrayList<String> traded_letter;
+	private boolean trading; // If currently trading -> can't put new tiles to the board
+	static boolean advanced_trade;
 
 	DialogueButton check;
 	Entity background;
@@ -121,6 +121,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	public boolean getAdvancedTrade() {
 		return advanced_trade;
 	}
+	
 	
 	public ArrayList<String> getTradedLetter() {
 		return traded_letter;
@@ -154,14 +155,45 @@ public class GameplayState extends BasicGameState implements GameParameters {
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
 		initNewGame();
 	}
-
-	public void initNewGame() throws SlickException {
-		// Init variables
+	
+	public void initVariables() {
 		warning_text = "";
 		status_text = "";
 		current_total_score = "";
 		turn = 0;
 		consecutivePasses = 0;
+		char_grid = new char[BOARDSIZE][BOARDSIZE];
+		b = new Board(new Vector2f(BOARD_START_X, BOARD_START_Y));
+		tiles = b.buildBoard();
+		lexicon = new Lexicon();
+		current_words = new ArrayList<>();
+	    move_letter = false;
+		tmp_letter = null;
+		clickable = true;
+		bag_of_letters = new ArrayList<String>();
+		current_display_letters = new ArrayList<Letter>();
+		current_display_traded_letters = new ArrayList<Letter>();
+		used_letters = new ArrayList<Letter>();
+		turn_begin_state = new ArrayList<>();
+		turn_begin_char_grid = new char[BOARDSIZE][BOARDSIZE];
+
+		newTilesThisTurn = new ArrayList<>();
+		checkable = true;
+		last_player_turn_begin_state = new ArrayList<>();
+		last_player_added_word = new ArrayList<>();
+		last_player_used_letters = new ArrayList<Letter>();
+		last_player_turn_begin_char_grid = new char[BOARDSIZE][BOARDSIZE];
+		last_player_newTilesThisTurn = new ArrayList<>();
+		
+		show_pos = new Vector2f(825, 510);
+		traded_letter = new ArrayList<String>();
+		trading = false; // If currently trading -> can't put new tiles to the board
+		advanced_trade = false;
+	}
+
+	public void initNewGame() throws SlickException {
+		// Init variables
+		initVariables();
 		// Initialize background
 		background = new Entity("background");
 		background.setPosition(new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
@@ -311,8 +343,10 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			lastStateID = -1;
 			// Initialize variables
 			consecutivePasses = 0;
+
 		}
 		triggerTrade(trade);
+
 		current_total_score = "";
 		status_text = "";
 		warning_text = "";
@@ -501,6 +535,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 				@Override
 				public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
 					if (traded_letter.isEmpty()) {
+						System.out.println("ERROR");
 						warning_text = "No letters to trade. Add at least one letter to trade zone.";
 						clickEvent.removeAction(change_state);
 						button.removeComponent(clickEvent);
