@@ -108,7 +108,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 
 	private ArrayList<String> traded_letter = new ArrayList<String>();
 	private boolean trading = false; // If currently trading -> can't put new tiles to the board
-	private boolean advanced_trade = true;
+	static boolean advanced_trade = false;
 
 	DialogueButton check;
 	Entity background;
@@ -239,7 +239,6 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		if (!Launch.debug)
 			trade.addImageComponent();
 		entityManager.addEntity(stateID, trade);
-		triggerTrade(trade);
 		
 		// Toggle Show Button
 
@@ -313,6 +312,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			// Initialize variables
 			consecutivePasses = 0;
 		}
+		triggerTrade(trade);
 		current_total_score = "";
 		status_text = "";
 		warning_text = "";
@@ -492,6 +492,7 @@ public class GameplayState extends BasicGameState implements GameParameters {
 			warning_text = "There aren't enough letters left in the bag to do a trade!";
 			return;
 		}
+				
 		if (advanced_trade) {
 			Action change_state = new ChangeStateAction(Launch.CE_STATE);
 			ANDEvent clickEvent = new ANDEvent(new MouseEnteredEvent(), new MouseClickedEvent());
