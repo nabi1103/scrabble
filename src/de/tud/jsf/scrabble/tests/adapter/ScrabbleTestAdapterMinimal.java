@@ -99,31 +99,6 @@ public class ScrabbleTestAdapterMinimal {
 		return null;
 	}
 	
-	/*public int getNewgameButtonX() {
-		// TODO
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getMainMenuStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "new_game_button") {
-				return (int)e.getPosition().getX();
-			}
-		}
-		return -1;
-	}
-	
-	public int getNewgameButtonY() {
-		// TODO
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getMainMenuStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "new_game_button") {
-				return (int)e.getPosition().getY();
-			}
-		}
-		return -1;
-	}*/
 	public int getGameplayStateID() {
 		// TODO
 		return GameParameters.GAMEPLAY_STATE;
@@ -208,31 +183,7 @@ public class ScrabbleTestAdapterMinimal {
 			}
 		}
 		return false;
-	}
-	
-	/*public int getPlayButtonX() {
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "play_button") {
-				return (int) e.getPosition().getX();
-			}
-		}
-		return -1;
-	}
-	
-	public int getPlayButtonY() {
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "play_button") {
-				return (int) e.getPosition().getY();
-			}
-		}
-		return -1;
-	}*/
+	}	
 	
 	public Vector2f getUndoButtonPosition() {
 		List<Entity> entities = new ArrayList<Entity>();
@@ -261,13 +212,6 @@ public class ScrabbleTestAdapterMinimal {
 		return ((GameplayState) scrabble.getState(getGameplayStateID())).getTiles()[rows-1][column-1].getPosition();
 	}
 	
-	/*public int getBoardY(int rows) {
-		return (int) ((GameplayState) scrabble.getState(getGameplayStateID())).getTiles()[rows-1][0].getPosition().getY();
-	}
-	
-	public int getBoardX(int column) {
-		return (int) ((GameplayState) scrabble.getState(getGameplayStateID())).getTiles()[0][column-1].getPosition().getX();
-	}*/
 	
 	public List<Vector2f> getLettersInInventoryPosition() {
 		List<Entity> entities = new ArrayList<Entity>();
@@ -300,31 +244,6 @@ public class ScrabbleTestAdapterMinimal {
 		return GameplayState.bag_of_letters.size();
 	}
 	
-	/*public List<Integer> getLettersInInventoryX() {
-		List<Entity> entities = new ArrayList<Entity>();
-		List<Integer> letters = new ArrayList<Integer>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
-		for (Entity e : entities) {
-			if (e instanceof Letter) {
-				letters.add((int) e.getPosition().getX());
-			}
-		}
-		return letters;
-	}
-	
-	public List<Integer> getLettersInInventoryY() {
-		List<Entity> entities = new ArrayList<Entity>();
-		List<Integer> letters = new ArrayList<Integer>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
-		for (Entity e : entities) {
-			if (e instanceof Letter) {
-				letters.add((int) e.getPosition().getY());
-			}
-		}
-		return letters;
-	}*/
 	
 	public char getLetter(Vector2f pos) {
 		List<Entity> entities = new ArrayList<Entity>();
@@ -369,23 +288,6 @@ public class ScrabbleTestAdapterMinimal {
 		return null;
 	}
 
-	/*public int getStartButtonX() {
-		// TODO
-		
-	}
-	
-	public int getStartButtonY() {
-		// TODO
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "start_button") {
-				return (int)e.getPosition().getY();
-			}
-		}
-		return -1;
-	}*/
 	
 	public Vector2f getBackButtonPosition() {
 		List<Entity> entities = new ArrayList<Entity>();
@@ -398,31 +300,7 @@ public class ScrabbleTestAdapterMinimal {
 		}
 		return null;
 	}
-	/*public int getBackButtonX() {
-		// TODO
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "back_button") {
-				return (int)e.getPosition().getX();
-			}
-		}
-		return -1;
-	}
-	
-	public int getBackButtonY() {
-		// TODO
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "back_button") {
-				return (int)e.getPosition().getY();
-			}
-		}
-		return -1;
-	}*/
+
 	
 	public List<Vector2f> getPlayerSelectFieldsPosition() {
 		ArrayList<Vector2f> result = new ArrayList<Vector2f>();
@@ -437,32 +315,7 @@ public class ScrabbleTestAdapterMinimal {
 		return result;
 	}
 	
-	/*public List<Integer> getPlayerSelectFieldsX() {
-		// TODO
-		ArrayList<Integer> result = new ArrayList<Integer>();
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "PlayerSelect") {
-				result.add( (int)e.getPosition().getX());
-			}
-		}
-		return result;
-	}
-	
-	public List<Integer> getPlayerSelectFieldsY() {
-		ArrayList<Integer> result = new ArrayList<Integer>();
-		List<Entity> entities = new ArrayList<Entity>();
-		if (scrabble != null) 
-			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getPlayerSelectStateID());
-		for (Entity e : entities) {
-			if (e.getID() == "PlayerSelect") {
-				result.add( (int)e.getPosition().getY());
-			}
-		}
-		return result;
-	}*/
+
 	
 	public void handleMousePressed(int x , int y,int delta,int input) {
 		if (scrabble != null && app != null) {

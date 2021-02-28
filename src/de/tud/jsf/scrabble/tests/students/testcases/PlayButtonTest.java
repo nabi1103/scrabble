@@ -38,15 +38,41 @@ public class PlayButtonTest {
 		}
 		adapter.handleMousePressed(adapter.getStartButtonPosition(),0,0);
 		assertTrue("Wrong state",adapter.getStateBasedGame().getCurrentStateID() == adapter.getGameplayStateID());
-		assertTrue("Wrong number of players",adapter.getCurrentNumberOfPlayers() == 4);
-		testGetLetterScore();
-		
+		assertTrue("Wrong number of players",adapter.getCurrentNumberOfPlayers() == 4);		
 	}
 	
-	
+	@Test
 	public void testGetLetterScore() {
 		// STUDENT
-		//assertEquals("Letter 'a' should have value" + 1, 1,adapter.getLetterScore('a'));
+		adapter.initGame();
+		assertEquals("Letter 'a' should have value " + 1, 1,adapter.getLetterScore('a'));
+		assertEquals("Letter 'e' should have value " + 1, 1,adapter.getLetterScore('e'));
+		assertEquals("Letter 'i' should have value " + 1, 1,adapter.getLetterScore('i'));
+		assertEquals("Letter 'o' should have value " + 1, 1,adapter.getLetterScore('o'));
+		assertEquals("Letter 'n' should have value " + 1, 1,adapter.getLetterScore('n'));
+		assertEquals("Letter 'r' should have value " + 1, 1,adapter.getLetterScore('r'));
+		assertEquals("Letter 't' should have value " + 1, 1,adapter.getLetterScore('t'));
+		assertEquals("Letter 'l' should have value " + 1, 1,adapter.getLetterScore('l'));
+		assertEquals("Letter 's' should have value " + 1, 1,adapter.getLetterScore('s'));
+		assertEquals("Letter 'u' should have value " + 1, 1,adapter.getLetterScore('u'));
+		
+		assertEquals("Letter 'd' should have value" + 2, 2,adapter.getLetterScore('d'));
+		assertEquals("Letter 'g' should have value" + 2, 2,adapter.getLetterScore('g'));
+		assertEquals("Letter 'b' should have value" + 3, 3,adapter.getLetterScore('b'));
+		assertEquals("Letter 'c' should have value" + 3, 3,adapter.getLetterScore('c'));
+		assertEquals("Letter 'm' should have value" + 3, 3,adapter.getLetterScore('m'));
+		assertEquals("Letter 'p' should have value" + 3, 3,adapter.getLetterScore('p'));
+		assertEquals("Letter 'f' should have value" + 4, 4,adapter.getLetterScore('f'));
+		assertEquals("Letter 'h' should have value" + 4, 4,adapter.getLetterScore('h'));
+		assertEquals("Letter 'v' should have value" + 4, 4,adapter.getLetterScore('v'));
+		assertEquals("Letter 'w' should have value" + 4, 4,adapter.getLetterScore('w'));
+		assertEquals("Letter 'y' should have value" + 4, 4,adapter.getLetterScore('y'));
+		assertEquals("Letter 'k' should have value" + 5, 5,adapter.getLetterScore('k'));
+		assertEquals("Letter 'j' should have value" + 8, 8,adapter.getLetterScore('j'));
+		assertEquals("Letter 'x' should have value" + 8, 8,adapter.getLetterScore('x'));
+		assertEquals("Letter 'q' should have value" + 10, 10,adapter.getLetterScore('q'));
+		assertEquals("Letter 'z' should have value" + 10, 10,adapter.getLetterScore('z'));
+		
 		
 	}
 	// Test starting score	

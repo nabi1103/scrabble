@@ -75,12 +75,20 @@ public class CEState extends BasicGameState implements GameParameters {
 		this.stateID = sid;
 		entityManager = StateBasedEntityManager.getInstance();
 	}
+	
+	public int getTakenLettersSize() {
+		return taken_letters.size();
+	}
+	
+	public boolean getReturnClickable() {
+		return return_clickable;
+	}
 
 	@Override
 	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
 		Entity background = new Entity("background");
 		background.setPosition(new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
-		background.addComponent(new ImageRenderComponent(new Image(BACKGROUND)));
+		if (!Launch.debug)background.addComponent(new ImageRenderComponent(new Image(BACKGROUND)));
 		entityManager.addEntity(stateID, background);
 
 		// Hanging letters
@@ -98,7 +106,6 @@ public class CEState extends BasicGameState implements GameParameters {
 			public void update(GameContainer arg0, StateBasedGame arg1, int arg2, Component arg3) {
 				if (!play_clickable)
 					return;
-
 				play_clickable = false;
 				difficulty_clickable = false;
 				warning_text = "";
@@ -384,24 +391,29 @@ public class CEState extends BasicGameState implements GameParameters {
 		l.setVisible(false);
 		l.setPassable(true);
 		l.setPosition(tv);
+		
 
 		l.setScale(LETTER_SCALE_FACTOR);
 
 		ImageRenderComponent image = null;
-
-		for (String path : LETTERS) {
-			char image_id;
-			image_id = path.charAt(30);
-			if (letter.charAt(0) == Character.toLowerCase(image_id)) {
-				try {
-					image = new ImageRenderComponent(new Image(path));
-					l.addComponent(image);
-				} catch (SlickException e) {
-					System.err.println("Cannot find file " + path);
-					e.printStackTrace();
+		
+		if (!Launch.debug) {
+			for (String path : LETTERS) {
+				char image_id;
+				image_id = path.charAt(30);
+				if (letter.charAt(0) == Character.toLowerCase(image_id)) {
+					try {
+						image = new ImageRenderComponent(new Image(path));
+						l.addComponent(image);
+					} catch (SlickException e) {
+						System.err.println("Cannot find file " + path);
+						e.printStackTrace();
+					}
 				}
 			}
 		}
+
+	
 
 		entityManager.addEntity(stateID, l);
 		bag_of_letters_ce.add(l);
@@ -476,6 +488,7 @@ public class CEState extends BasicGameState implements GameParameters {
 		bar.setPosition(new Vector2f(350, 707.5f));
 		bar.setVisible(true);
 		bar.setPassable(true);
+		bar.setSize(new Vector2f(190*0.5f , 45*0.5f));
 
 		KeyDownEvent move_right = new KeyDownEvent(Keyboard.KEY_RIGHT);
 		move_right.addAction(new MoveRightAction(0.5f));
@@ -504,7 +517,7 @@ public class CEState extends BasicGameState implements GameParameters {
 
 		bar.addComponent(touch_bound);
 
-		bar.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/bar.png")));
+		if (!Launch.debug)bar.addComponent(new ImageRenderComponent(new Image("assets/scrabble/ui/bar.png")));
 		entityManager.addEntity(stateID, bar);
 
 		return bar;

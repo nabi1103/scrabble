@@ -12,15 +12,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.newdawn.slick.geom.Vector2f;
 
-import de.tud.jsf.scrabble.tests.adapter.ScrabbleTestAdapterExtended1;
+import de.tud.jsf.scrabble.tests.adapter.ScrabbleTestAdapterExtended2;
 
 public class ShowHideTest {
 
-	ScrabbleTestAdapterExtended1 adapter;
+	ScrabbleTestAdapterExtended2 adapter;
 
 	@Before
 	public void setup() {
-		adapter = new ScrabbleTestAdapterExtended1();
+		adapter = new ScrabbleTestAdapterExtended2();
 	}
 	@After
 	public void finish() {
@@ -115,9 +115,10 @@ public class ShowHideTest {
 		List<Vector2f> inventory = adapter.getLettersInInventoryPosition();
 		adapter.handleMousePressed(showPos,0,0);
 		assertTrue("The letters should be hidden when clicking the button ",adapter.areLettersHidden());
+		char letter = adapter.getLetter(inventory.get(0));
 		adapter.handleMousePressed(inventory.get(0),0,0);
 		adapter.handleMousePressed(adapter.getFieldPosition(8,8),0,0);
-		assertTrue("It should not be possible to place a letter when the letters are hidden",adapter.getBoard()[7][7] == '\u0000');
+		assertTrue("It should be possible to place a letter when the letters are hidden",adapter.getBoard()[7][7] == letter);
 		
 	}
 	

@@ -10,17 +10,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.newdawn.slick.geom.Vector2f;
 
-import de.tud.jsf.scrabble.tests.adapter.ScrabbleTestAdapterExtended1;
+import de.tud.jsf.scrabble.tests.adapter.ScrabbleTestAdapterExtended2;
 
 
 public class ChallengeTest {
 	
-	ScrabbleTestAdapterExtended1 adapter;
+	ScrabbleTestAdapterExtended2 adapter;
 
 	
 	@Before
 	public void setup() {
-		adapter = new ScrabbleTestAdapterExtended1();
+		adapter = new ScrabbleTestAdapterExtended2();
 	}
 	@After
 	public void finish() {

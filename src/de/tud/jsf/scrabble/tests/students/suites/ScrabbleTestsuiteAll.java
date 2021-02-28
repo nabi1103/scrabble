@@ -11,8 +11,8 @@ public class ScrabbleTestsuiteAll {
 		
 		suite.addTest(de.tud.jsf.scrabble.tests.students.suites.ScrabbleTestsuiteMinimal.suite());
 		suite.addTest(de.tud.jsf.scrabble.tests.students.suites.ScrabbleTestsuiteExtended1.suite());
-		//suite.addTest(de.tu_darmstadt.gdi1.tanks.tests.students.suites.TanksTestsuiteExtended2.suite());
-		//suite.addTest(de.tu_darmstadt.gdi1.tanks.tests.students.suites.TanksTestsuiteExtended3.suite());
+		suite.addTest(de.tud.jsf.scrabble.tests.students.suites.ScrabbleTestsuiteExtended2.suite());
+		suite.addTest(de.tud.jsf.scrabble.tests.students.suites.ScrabbleTestsuiteExtended3.suite());
 		
 		return suite;
 	}

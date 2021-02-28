@@ -6,16 +6,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.tud.jsf.scrabble.tests.adapter.ScrabbleTestAdapterExtended1;
+import de.tud.jsf.scrabble.tests.adapter.ScrabbleTestAdapterExtended2;
 import de.tud.jsf.scrabble.tests.adapter.ScrabbleTestAdapterMinimal;
 
 public class HighscoreTest {
 	
-	ScrabbleTestAdapterExtended1 adapter;
+	ScrabbleTestAdapterExtended2 adapter;
 	
 	@Before
 	public void setup() {
-		adapter = new ScrabbleTestAdapterExtended1();
+		adapter = new ScrabbleTestAdapterExtended2();
 		adapter.resetHighscore();
 	}
 	@After

@@ -2,9 +2,11 @@ package de.tud.jsf.scrabble.tests.students.suites;
 
 
 
+import de.tud.jsf.scrabble.tests.students.testcases.GameEndTest;
 import de.tud.jsf.scrabble.tests.students.testcases.PlacingLetterTest;
 import de.tud.jsf.scrabble.tests.students.testcases.PlayButtonTest;
 import de.tud.jsf.scrabble.tests.students.testcases.PlayerSelectTest;
+import de.tud.jsf.scrabble.tests.students.testcases.UndoTest;
 import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -15,8 +17,10 @@ public class ScrabbleTestsuiteMinimal {
 		
 		TestSuite suite = new TestSuite("Student tests for Scrabble - Minimal");
 		suite.addTest(new JUnit4TestAdapter(PlayerSelectTest.class));
-		//suite.addTest(new JUnit4TestAdapter(PlacingLetterTest.class));
+		suite.addTest(new JUnit4TestAdapter(PlacingLetterTest.class));
 		suite.addTest(new JUnit4TestAdapter(PlayButtonTest.class));
+		suite.addTest(new JUnit4TestAdapter(UndoTest.class));
+		suite.addTest(new JUnit4TestAdapter(GameEndTest.class));
 		return suite;
 	}
 }

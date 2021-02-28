@@ -117,6 +117,18 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		this.stateID = sid;
 		entityManager = StateBasedEntityManager.getInstance();
 	}
+	
+	public boolean getAdvancedTrade() {
+		return advanced_trade;
+	}
+	
+	public ArrayList<String> getTradedLetter() {
+		return traded_letter;
+	}
+	
+	public int getTradedLetterSize() {
+		return traded_letter.size();
+	}
 
 	public int getCurrentTurn() {
 		return turn;
@@ -1089,9 +1101,6 @@ public class GameplayState extends BasicGameState implements GameParameters {
 		move_letter = false;
 		Player currentPlayer = Players.currentPlayer;
 		// Increase total turn count
-		if (trading && turn == 0) {
-			turn = turn - 1;
-		}
 
 		turn++;
 		

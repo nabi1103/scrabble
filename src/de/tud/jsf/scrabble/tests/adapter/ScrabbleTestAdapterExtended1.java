@@ -5,79 +5,114 @@ import java.util.List;
 
 import org.newdawn.slick.geom.Vector2f;
 
-import de.tud.jsf.scrabble.model.highscore.Highscore;
-import de.tud.jsf.scrabble.model.highscore.HighscoreList;
-import de.tud.jsf.scrabble.ui.entity.DialogueButton;
-import de.tud.jsf.scrabble.ui.entity.Lexicon;
+import de.tud.jsf.scrabble.constants.GameParameters;
+import de.tud.jsf.scrabble.ui.states.CEState;
+import de.tud.jsf.scrabble.ui.states.GameplayState;
 import eea.engine.entity.Entity;
 import eea.engine.entity.StateBasedEntityManager;
 
-
-// HIGHSCORE, SHOW/HIDE, GAMEWINNING
+// CHALLENGE
 public class ScrabbleTestAdapterExtended1 extends ScrabbleTestAdapterMinimal {
 	
 	public ScrabbleTestAdapterExtended1() {
 		super();
 	}
 	
-	public Vector2f getChallengeButtonPosition() {
+	public int getTradeStateID() {
+		return GameParameters.CE_STATE;
+	}
+	
+	public Vector2f getTradeButtonPosition() {
 		// TODO
 		List<Entity> entities = new ArrayList<Entity>();
 		if (scrabble != null) 
 			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
 		for (Entity e : entities) {
-			if (e.getID() == "check_button") {
+			if (e.getID() == "trade_button") {
 				return e.getPosition();
 			}
 		}
 		return null;
 	}
 	
-	public boolean isWordLegal(String word) {
+	public Vector2f getTradeZonePosition() {
 		// TODO
-		Lexicon lex = new Lexicon();
-		return lex.check(word);
+		List<Entity> entities = new ArrayList<Entity>();
+		if (scrabble != null) 
+			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getGameplayStateID());
+		for (Entity e : entities) {
+			if (e.getID() == "trade_zone") {
+				return e.getPosition();
+			}
+		}
+		return null;
 	}
 	
-	public void addHighscore(String name, int score , int round) {
+	public int getNumberOfLettersInTradeZone() {
 		// TODO
-		HighscoreList.getInstance().addHighscore(new Highscore(name,score,round));
+		return ((GameplayState) scrabble.getState(getGameplayStateID())).getTradedLetterSize(); 
 	}
 	
-	public void resetHighscore() {
+	public Vector2f getMinigameStartButtonPosition() {
 		// TODO
-		HighscoreList.getInstance().getHighscores().clear();
+		List<Entity> entities = new ArrayList<Entity>();
+		if (scrabble != null) 
+			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getTradeStateID());
+		for (Entity e : entities) {
+			if (e.getID() == "play_button") {
+				return e.getPosition();
+			}
+		}
+		return null;
 	}
 	
-	public String getPlayerNameInHighscore(int pos) {
+	public Vector2f getMinigameReturnButtonPosition() {
 		// TODO
-		return HighscoreList.getInstance().getHighscores().get(pos).getName();
+		List<Entity> entities = new ArrayList<Entity>();
+		if (scrabble != null) 
+			entities = StateBasedEntityManager.getInstance().getEntitiesByState(getTradeStateID());
+		for (Entity e : entities) {
+			if (e.getID() == "return_button") {
+				return e.getPosition();
+			}
+		}
+		return null;
 	}
 	
-	public int getScoreOfPlayerInHighscore(int pos) {
-		// TODO
-		return HighscoreList.getInstance().getHighscores().get(pos).getScore();
+	public boolean minigameEnded() {
+		if (getTradeStateID() != getStateBasedGame().getCurrentStateID()) {
+			return false;
+		}
+		return ((CEState) scrabble.getState(getTradeStateID())).getReturnClickable();
 	}
 	
-	public int getRoundOfPlayerInHighscore(int pos) {
+	public boolean isRandomTradeActivated() {
 		// TODO
-		return HighscoreList.getInstance().getHighscores().get(pos).getRound();
+		return !((GameplayState) scrabble.getState(getGameplayStateID())).getAdvancedTrade(); 
 	}
 	
-	public int getHighscoreListSize() {
+	public boolean isMinigameTradeActivated() {
 		// TODO
-		return HighscoreList.getInstance().getHighscores().size();
+		return ((GameplayState) scrabble.getState(getGameplayStateID())).getAdvancedTrade(); 
+	}
+	
+	public boolean isTradeZoneEmpty() {
+		return (getNumberOfLettersInTradeZone() == 0);
+	}
+	
+	public List<Character> getLettersInTradeZone() {
+		ArrayList<Character> res = new ArrayList<Character>();
+		for (String letter : ((GameplayState) scrabble.getState(getGameplayStateID())).getTradedLetter()) {
+			res.add(letter.charAt(0));
+		}
+		return res;
+		
+	}
+	
+	public int getNumberOfLettersWonInMinigame() {
+		return ((CEState) scrabble.getState(getTradeStateID())).getTakenLettersSize();
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 }

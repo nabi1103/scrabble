@@ -1,0 +1,18 @@
+package de.tud.jsf.scrabble.tests.students.suites;
+
+import de.tud.jsf.scrabble.tests.students.testcases.ChallengeTest;
+import de.tud.jsf.scrabble.tests.students.testcases.HighscoreTest;
+import junit.framework.JUnit4TestAdapter;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+public class ScrabbleTestsuiteExtended2 {
+public static Test suite() {
+		
+		TestSuite suite = new TestSuite("Student tests for Scrabble - Extended 2");
+		suite.addTest(new JUnit4TestAdapter(ChallengeTest.class));
+		suite.addTest(new JUnit4TestAdapter(HighscoreTest.class));
+		return suite;
+	}
+
+}
